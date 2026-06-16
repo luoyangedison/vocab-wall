@@ -2,554 +2,1059 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="每日单词">
-<meta name="theme-color" content="#FF6B6B">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23FF6B6B'/><stop offset='50%25' style='stop-color:%23FFD93D'/><stop offset='100%25' style='stop-color:%236BCB77'/></linearGradient></defs><rect width='180' height='180' rx='36' fill='url(%23g)'/><text x='90' y='110' text-anchor='middle' font-size='80' fill='white'>A</text></svg>">
+<meta name="theme-color" content="#1A1A2E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23667EEA'/><stop offset='100%25' style='stop-color:%23764BA2'/></linearGradient></defs><rect width='180' height='180' rx='36' fill='url(%23g)'/><text x='90' y='110' text-anchor='middle' font-size='80' fill='white'>V</text></svg>">
 <title>每日单词</title>
 <style>
-:root {
-  --bg: #FFF5F5;
-  --card-bg: #FFFFFF;
-  --text: #2D3436;
-  --sub: #636E72;
-  --muted: #95A5A6;
-  --coral: #FF6B6B;
-  --yellow: #FFD93D;
-  --green: #6BCB77;
-  --teal: #4ECDC4;
-  --purple: #A66CFF;
-  --pink: #FF8C94;
-  --shadow: 0 4px 24px rgba(255,107,107,0.12);
-  --radius: 20px;
-}
+:root{--bg:#F7F8FC;--card-bg:#FFFFFF;--text:#1A1A2E;--sub:#555770;--muted:#8E90A6;--accent:#667EEA;--accent2:#764BA2;--success:#0ECD9D;--warm:#F5A623;--shadow:0 2px 16px rgba(26,26,46,0.06);--radius:16px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
-  background:var(--bg);color:var(--text);
-  min-height:100vh;min-height:-webkit-fill-available;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
-  -webkit-tap-highlight-color:transparent;
-  padding-bottom:env(safe-area-inset-bottom,20px);
-}
-.header-glow{position:fixed;top:0;left:0;right:0;height:6px;
-  background:linear-gradient(90deg,var(--coral),var(--yellow),var(--green),var(--teal),var(--purple));z-index:100}
-.container{max-width:430px;margin:0 auto;padding:20px 16px 40px}
-.hidden{display:none!important}
-
-/* 登录页 */
-.login-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
-.login-logo{font-size:48px;margin-bottom:8px}
-.login-title{font-size:22px;font-weight:800;margin-bottom:4px}
-.login-sub{font-size:13px;color:var(--sub);margin-bottom:28px}
-.user-list{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
-.user-card{
-  display:flex;align-items:center;gap:12px;
-  background:var(--card-bg);border-radius:16px;padding:16px;
-  box-shadow:0 2px 16px rgba(0,0,0,0.06);cursor:pointer;
-  transition:transform 0.15s;border-left:4px solid var(--coral)
-}
-.user-card:nth-child(3n+1){border-left-color:var(--coral)}
-.user-card:nth-child(3n+2){border-left-color:var(--purple)}
-.user-card:nth-child(3n+0){border-left-color:var(--teal)}
-.user-card:active{transform:scale(0.97)}
-.user-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700;flex-shrink:0}
-.avatar-coral{background:linear-gradient(135deg,var(--coral),var(--pink))}
-.avatar-purple{background:linear-gradient(135deg,var(--purple),var(--coral))}
-.avatar-teal{background:linear-gradient(135deg,var(--teal),var(--green))}
-.user-info{flex:1}
-.user-name{font-size:15px;font-weight:700}
-.user-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.user-badge{font-size:12px;background:#FFF5F5;color:var(--coral);padding:3px 10px;border-radius:10px;font-weight:600}
-.create-btn{margin-top:16px;width:100%;max-width:360px;padding:14px;border:2px dashed #ddd;border-radius:16px;background:none;font-size:14px;color:var(--sub);cursor:pointer;transition:border-color 0.2s}
-.create-btn:active{border-color:var(--coral);color:var(--coral)}
-
-/* 创建用户弹窗 */
-.dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
-.dialog{
-  background:var(--card-bg);border-radius:24px;padding:28px 24px 22px;
-  width:100%;max-width:340px;animation:popIn 0.25s ease
-}
-@keyframes popIn{from{transform:scale(0.9);opacity:0}}
-.dialog h4{font-size:18px;margin-bottom:16px}
-.dialog label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px;margin-top:12px}
-.dialog label:first-of-type{margin-top:0}
-.dialog input{
-  width:100%;padding:12px 14px;border:2px solid #eee;border-radius:12px;
-  font-size:15px;outline:none;transition:border-color 0.2s;
-  font-family:inherit
-}
-.dialog input:focus{border-color:var(--coral)}
-.dialog .btns{display:flex;gap:10px;margin-top:20px}
-.dialog .btns button{flex:1;padding:12px;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer}
-.dialog .btn-cancel{background:#f5f5f5;color:var(--sub)}
-.dialog .btn-ok{background:linear-gradient(135deg,var(--coral),var(--pink));color:white}
-.dialog .btn-danger{background:linear-gradient(135deg,#e74c3c,#c0392b);color:white}
-.dialog .error{font-size:12px;color:#e74c3c;margin-top:6px}
-
-/* 主页面 */
-.top-bar{display:flex;align-items:center;justify-content:space-between;margin-top:14px;margin-bottom:6px}
-.logo{font-size:20px;font-weight:800;
-  background:linear-gradient(135deg,var(--coral),var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.top-btns{display:flex;gap:8px;align-items:center}
-.avatar-btn{width:34px;height:34px;border-radius:50%;border:none;color:white;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--card-bg);box-shadow:0 2px 12px rgba(0,0,0,0.07);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.15s}
-.icon-btn:active{transform:scale(0.9)}
-
-.progress-section{margin:6px 0 14px}
-.progress-label{font-size:12px;color:var(--sub);margin-bottom:3px;display:flex;justify-content:space-between}
-.progress-bar-wrap{height:7px;border-radius:10px;background:#F0E0E0;overflow:hidden}
-.progress-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--green),var(--teal));transition:width 0.5s ease}
-
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;padding-bottom:env(safe-area-inset-bottom,20px)}
+.container{max-width:430px;margin:0 auto;padding:16px 16px 40px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid #eee;margin-bottom:12px}
+.logo{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.user-area{display:flex;align-items:center;gap:6px}
+.user-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;border:1.5px solid #E4E6EE;background:#FFF;color:var(--sub);font-size:13px;font-weight:500;cursor:pointer;transition:0.15s}
+.user-btn:active{background:#F0F1F8;transform:scale(0.97)}
+.user-btn .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.action-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.action-btns{display:flex;gap:6px}
+.text-btn{display:flex;align-items:center;gap:3px;padding:6px 14px;border-radius:22px;border:1.5px solid #E4E6EE;background:#FFF;color:var(--sub);font-size:12px;font-weight:500;cursor:pointer;transition:0.15s}
+.text-btn:active{background:#F0F1F8}
+.text-btn .btn-icon{font-size:14px}
+.progress-section{margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.progress-bar-wrap{flex:1;height:6px;border-radius:8px;background:#E8E9F0;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s ease}
+.progress-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:36px;text-align:right}
 .word-list{display:flex;flex-direction:column;gap:10px}
-.word-card{
-  background:var(--card-bg);border-radius:var(--radius);padding:14px 16px;
-  box-shadow:var(--shadow);cursor:pointer;position:relative;
-  border-left:5px solid transparent;animation:cardIn 0.4s ease both
-}
+.word-card{background:var(--card-bg);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);cursor:pointer;position:relative;border:1.5px solid transparent;animation:cardIn 0.4s ease both;transition:border-color 0.2s}
 .word-card:active{transform:scale(0.97)}
-.word-card:nth-child(8n+1){border-left-color:var(--coral)}
-.word-card:nth-child(8n+2){border-left-color:var(--yellow)}
-.word-card:nth-child(8n+3){border-left-color:var(--green)}
-.word-card:nth-child(8n+4){border-left-color:var(--teal)}
-.word-card:nth-child(8n+5){border-left-color:var(--purple)}
-.word-card:nth-child(8n+6){border-left-color:var(--pink)}
-.word-card:nth-child(8n+7){border-left-color:#FF8C42}
-.word-card:nth-child(8n+0){border-left-color:#45B7D1}
-.word-main{font-size:24px;font-weight:700;letter-spacing:0.3px}
-.word-phonetic{font-size:13px;color:var(--sub);margin:2px 0 5px;font-family:'SF Mono',Menlo,monospace}
-.word-zh{font-size:14px;color:#555;margin-bottom:3px}
-.word-example{font-size:12px;color:var(--muted);font-style:italic;border-left:2px solid var(--teal);padding-left:8px;line-height:1.5}
-.word-speaker{position:absolute;right:12px;top:12px;width:32px;height:32px;border-radius:50%;
-  background:linear-gradient(135deg,var(--coral),var(--pink));
-  display:flex;align-items:center;justify-content:center;color:white;font-size:14px;opacity:0.85;transition:transform 0.1s}
+.word-card.learned{opacity:0.55}
+.word-main{font-size:22px;font-weight:700;color:var(--text);letter-spacing:0.2px}
+.word-phonetic{font-size:13px;color:var(--sub);margin:2px 0 4px;font-family:'SF Mono',Menlo,monospace}
+.word-zh{font-size:14px;color:#444;margin-bottom:4px}
+.word-example{font-size:12px;color:var(--muted);font-style:italic;border-left:3px solid var(--accent);padding-left:8px;line-height:1.5;margin-top:4px}
+.word-speaker{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-size:15px;opacity:0.9;transition:0.1s;box-shadow:0 2px 8px rgba(102,126,234,0.3)}
 .word-card:active .word-speaker{transform:scale(0.88)}
-.word-card.pronouncing{border-color:var(--teal)!important;box-shadow:0 0 0 4px rgba(78,205,196,0.25)!important}
-@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-.bottom-bar{display:flex;gap:10px;margin-top:18px}
-.btn{flex:1;padding:13px 0;border:none;border-radius:16px;font-size:14px;font-weight:600;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+.word-card.pronouncing{border-color:var(--accent)!important;box-shadow:0 0 0 4px rgba(102,126,234,0.15)!important}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bottom-bar{display:flex;gap:10px;margin-top:16px}
+.btn{flex:1;padding:13px 0;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;transition:0.15s}
 .btn:active{transform:scale(0.95)}
-.btn-primary{background:linear-gradient(135deg,var(--purple),var(--coral));color:white;box-shadow:0 4px 16px rgba(166,108,255,0.3)}
-.btn-secondary{background:var(--card-bg);color:var(--text);box-shadow:0 2px 12px rgba(0,0,0,0.05)}
-
-/* 面板 */
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;box-shadow:0 4px 14px rgba(102,126,234,0.3)}
+.btn-secondary{background:var(--card-bg);color:var(--text);box-shadow:var(--shadow);border:1.5px solid #E8E9F0}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;display:flex;align-items:flex-end;animation:fadeIn 0.2s}
-@keyframes fadeIn{from{opacity:0}}
+.overlay.hidden{display:none}
 .panel{background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:430px;margin:0 auto;padding:20px 20px 40px;max-height:85vh;overflow-y:auto;animation:slideUp 0.3s ease;box-shadow:0 -8px 40px rgba(0,0,0,0.12)}
-@keyframes slideUp{from{transform:translateY(100%)}}
 .panel-handle{width:36px;height:5px;border-radius:4px;background:#ddd;margin:0 auto 16px}
-.panel h3{font-size:17px;font-weight:700;margin-bottom:14px}
-
-/* 用户面板 */
-.user-panel-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;margin-bottom:6px;border:2px solid transparent;cursor:pointer}
-.user-panel-item.active{border-color:var(--coral);background:linear-gradient(135deg,#FFF,#FFF5F5)}
-.user-panel-item:active{background:#f9f9f9}
-.up-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;font-weight:700;flex-shrink:0}
-.up-info{flex:1}
-.up-name{font-size:14px;font-weight:700}
-.up-desc{font-size:11px;color:var(--muted)}
-.up-actions{display:flex;gap:6px}
-.up-btn{padding:6px 12px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer}
-.up-btn-enter{background:var(--coral);color:white}
-.up-btn-del{background:#fee;color:#c0392b}
-.panel-divider{height:1px;background:#eee;margin:12px 0}
-.new-user-btn{width:100%;padding:12px;border:2px dashed #ddd;border-radius:14px;background:none;font-size:14px;color:var(--sub);cursor:pointer}
-
-/* 二级菜单 */
+.panel h3{font-size:17px;font-weight:700;margin-bottom:14px;color:var(--text)}
 .cat-group{margin-bottom:16px}
-.cat-group-header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#FAFAFA;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;transition:background 0.2s}
-.cat-group-header:active{background:#F0F0F0}
-.cat-group-arrow{margin-left:auto;font-size:12px;transition:transform 0.25s;color:var(--sub)}
+.cat-group-header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:#F7F8FC;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;user-select:none;-webkit-user-select:none;transition:0.2s;color:var(--text)}
+.cat-group-header:active{background:#EEEFF5}
+.cat-group-arrow{margin-left:auto;font-size:12px;transition:0.25s;color:var(--sub)}
 .cat-group.open .cat-group-arrow{transform:rotate(180deg)}
 .cat-group-body{display:none;flex-direction:column;gap:6px;padding:8px 0 0 6px}
 .cat-group.open .cat-group-body{display:flex}
-.sub-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#FFF;border:2px solid #eee;cursor:pointer;transition:border-color 0.2s}
+.sub-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#FFF;border:2px solid #eee;cursor:pointer;transition:0.2s}
 .sub-option:active{transform:scale(0.98)}
-.sub-option.selected{border-color:var(--coral);background:linear-gradient(135deg,#FFF,#FFF5F5)}
+.sub-option.selected{border-color:var(--accent);background:linear-gradient(135deg,#FFF,#F0F3FF)}
 .sub-dot{width:8px;height:8px;border-radius:50%;background:#ddd;flex-shrink:0}
-.sub-option.selected .sub-dot{background:var(--coral)}
+.sub-option.selected .sub-dot{background:var(--accent)}
 .sub-info{flex:1}
-.sub-name{font-size:13px;font-weight:600}
+.sub-name{font-size:13px;font-weight:600;color:var(--text)}
 .sub-desc{font-size:11px;color:var(--muted)}
 .sub-check{width:20px;height:20px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sub-option.selected .sub-check{background:linear-gradient(135deg,var(--coral),var(--pink));border-color:var(--coral)}
-.sub-option.selected .sub-check::after{content:'✓';color:white;font-size:11px;font-weight:700}
-
+.sub-option.selected .sub-check{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent)}
+.sub-option.selected .sub-check::after{content:'¹3';color:white;font-size:11px;font-weight:700}
 .count-opts{display:flex;gap:6px;margin-bottom:18px}
-.count-btn{flex:1;padding:10px 0;border:2px solid #eee;border-radius:12px;background:#FAFAFA;font-size:15px;font-weight:700;cursor:pointer;transition:border-color 0.2s,background 0.2s}
-.count-btn.selected{border-color:var(--coral);background:#FFF5F5;color:var(--coral)}
+.count-btn{flex:1;padding:10px 0;border:2px solid #eee;border-radius:12px;background:#FAFAFC;font-size:15px;font-weight:700;cursor:pointer;transition:0.2s;color:var(--text)}
+.count-btn.selected{border-color:var(--accent);background:#F0F3FF;color:var(--accent)}
 .count-btn:active{transform:scale(0.95)}
-
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.stat-card{background:#FAFAFA;border-radius:14px;padding:14px 10px;text-align:center;border-top:3px solid var(--coral)}
-.stat-card:nth-child(1){border-top-color:var(--coral)}
-.stat-card:nth-child(2){border-top-color:var(--teal)}
-.stat-card:nth-child(3){border-top-color:var(--yellow)}
-.stat-card:nth-child(4){border-top-color:var(--purple)}
-.stat-val{font-size:26px;font-weight:800;
-  background:linear-gradient(135deg,var(--coral),var(--pink));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-card{background:#F7F8FC;border-radius:14px;padding:14px 10px;text-align:center}
+.stat-card:nth-child(1) .stat-val{color:var(--accent)}
+.stat-card:nth-child(2) .stat-val{color:var(--accent2)}
+.stat-card:nth-child(3) .stat-val{color:var(--success)}
+.stat-card:nth-child(4) .stat-val{color:var(--warm)}
+.stat-val{font-size:26px;font-weight:800}
 .stat-label{font-size:11px;color:var(--muted);margin-top:2px}
-.streak-section{text-align:center;padding:10px 0}
+.streak-section{text-align:center;padding:8px 0}
 .streak-emoji{font-size:36px}
 .streak-msg{font-size:13px;color:var(--sub);margin-top:4px}
-
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#2D3436;color:white;padding:10px 22px;border-radius:20px;font-size:13px;z-index:500;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:white;padding:10px 22px;border-radius:20px;font-size:13px;z-index:300;opacity:0;transition:opacity 0.3s;pointer-events:none}
 .toast.show{opacity:1}
+.input-group{margin-bottom:14px}
+.input-group label{display:block;font-size:13px;font-weight:600;color:var(--sub);margin-bottom:4px}
+.input-group input{width:100%;padding:12px 14px;border:2px solid #E4E6EE;border-radius:12px;font-size:15px;outline:none;transition:0.2s;background:#FAFAFC}
+.input-group input:focus{border-color:var(--accent)}
+.guide-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px}
+.guide-overlay.hidden{display:none}
+.guide-card{background:var(--card-bg);border-radius:24px;padding:28px 24px;max-width:330px;text-align:center;animation:cardIn 0.4s ease}
+.guide-card h4{font-size:20px;margin-bottom:12px}
+.guide-card .step{display:flex;align-items:flex-start;gap:8px;margin:8px 0;text-align:left;font-size:13px;color:var(--sub)}
+.guide-card .step-n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:white;font-size:12px;font-weight:700;flex-shrink:0}
+.guide-card .hl{color:var(--accent);font-weight:700}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes slideUp{from{transform:translateY(100%)}}
 </style>
 </head>
 <body>
-
-<div class="header-glow"></div>
-
-<!-- 登录页 -->
-<div class="login-page hidden" id="loginPage">
-  <div class="login-logo">📖</div>
-  <div class="login-title">选择你的身份</div>
-  <div class="login-sub">同一部手机，各自记录</div>
-  <div class="user-list" id="userList"></div>
-  <button class="create-btn" onclick="showCreate()">+ 添加新用户</button>
+<div class="container">
+<div class="top-bar">
+<span class="logo">每日单词</span>
+<div class="user-area">
+<button class="user-btn" onclick="openUserPanel()">
+<span class="avatar" id="userAvatar">?</span>
+<span id="userNameDisplay" style="display:none"></span><span id="userPlaceholder">点击登录</span>
+</button>
 </div>
-
-<!-- 创建用户弹窗 -->
-<div class="dialog-overlay hidden" id="createDialog" onclick="if(event.target===this)hideDialog('createDialog')">
-  <div class="dialog">
-    <h4>👤 创建新用户</h4>
-    <label>名字</label>
-    <input id="newName" maxlength="10" placeholder="如：小明">
-    <label>密码</label>
-    <input id="newPwd" type="password" maxlength="20" placeholder="6~20位，用于管理账户">
-    <div class="error hidden" id="createErr"></div>
-    <div class="btns">
-      <button class="btn-cancel" onclick="hideDialog('createDialog')">取消</button>
-      <button class="btn-ok" onclick="doCreate()">创建</button>
-    </div>
-  </div>
 </div>
-
-<!-- 删除确认弹窗 -->
-<div class="dialog-overlay hidden" id="delDialog" onclick="if(event.target===this)hideDialog('delDialog')">
-  <div class="dialog">
-    <h4>🗑 删除账户</h4>
-    <p style="font-size:13px;color:var(--sub);margin-bottom:12px">将删除 <b id="delTarget">--</b> 的所有学习记录，不可恢复。</p>
-    <label>请输入密码确认</label>
-    <input id="delPwd" type="password" placeholder="输入该账户的密码">
-    <div class="error hidden" id="delErr"></div>
-    <div class="btns">
-      <button class="btn-cancel" onclick="hideDialog('delDialog')">取消</button>
-      <button class="btn-danger" onclick="doDelete()">确认删除</button>
-    </div>
-  </div>
+<div class="action-row">
+<div class="action-btns">
+<button class="text-btn" onclick="openSettings()"><span class="btn-icon">⚙</span> 词库</button>
+<button class="text-btn" onclick="openStats()"><span class="btn-icon">📊</span> 统计</button>
 </div>
-
-<!-- 主页面 -->
-<div class="container hidden" id="mainPage">
-  <div class="top-bar">
-    <span class="logo">📖 每日词汇</span>
-    <div class="top-btns">
-      <button class="avatar-btn avatar-coral" id="avatarBtn" onclick="showUserPanel()">我</button>
-      <button class="icon-btn" onclick="openStats()">📊</button>
-      <button class="icon-btn" onclick="openSettings()">⚙️</button>
-    </div>
-  </div>
-  <div class="progress-section">
-    <div class="progress-label"><span>今日已学</span><span id="progText">0 / 3</span></div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progBar" style="width:0%"></div></div>
-  </div>
-  <div class="word-list" id="wordList"></div>
-  <div class="bottom-bar">
-    <button class="btn btn-secondary" onclick="refreshWords()">🔄 换一批</button>
-    <button class="btn btn-primary" onclick="speakAll()">🔊 连续朗读</button>
-  </div>
 </div>
-
-<!-- 用户管理面板 -->
-<div class="overlay hidden" id="userOverlay" onclick="if(event.target===this)hidePanel('userOverlay')">
-  <div class="panel" onclick="event.stopPropagation()">
-    <div class="panel-handle"></div>
-    <h3>👤 切换账户</h3>
-    <div id="userPanelList"></div>
-    <div class="panel-divider"></div>
-    <button class="new-user-btn" onclick="hidePanel('userOverlay');showCreate()">+ 添加新用户</button>
-    <button class="btn btn-secondary" style="width:100%;margin-top:10px" onclick="hidePanel('userOverlay')">关闭</button>
-  </div>
+<div class="progress-section">
+<div class="progress-bar-wrap"><div class="progress-bar-fill" id="progBar" style="width:0%"></div></div>
+<div class="progress-label" id="progText">0/3</div>
+</div>
+<div class="word-list" id="wordList"></div>
+<div class="bottom-bar">
+<button class="btn btn-secondary" onclick="refreshWords()">换一批</button>
+<button class="btn btn-primary" onclick="speakAll()">连续朗读</button>
+</div>
 </div>
 
 <!-- 设置面板 -->
-<div class="overlay hidden" id="settingsOverlay" onclick="if(event.target===this)hidePanel('settingsOverlay')">
-  <div class="panel" onclick="event.stopPropagation()">
-    <div class="panel-handle"></div>
-    <h3>⚙️ 词库设置</h3>
-    <div id="catGroups"></div>
-    <h3>每日词数</h3>
-    <div class="count-opts" id="countOpts"></div>
-    <div style="margin-top:16px;display:flex;gap:10px">
-      <button class="btn btn-secondary" onclick="hidePanel('settingsOverlay')">取消</button>
-      <button class="btn btn-primary" onclick="saveAndClose()">保存</button>
-    </div>
-  </div>
+<div class="overlay hidden" id="settingsOverlay" onclick="closePanel(event,'settingsOverlay')">
+<div class="panel" onclick="event.stopPropagation()">
+<div class="panel-handle"></div>
+<h3>词库设置</h3>
+<div id="catGroups"></div>
+<h3 style="margin-top:8px">每日词数</h3>
+<div class="count-opts" id="countOpts"></div>
+<div style="margin-top:16px;display:flex;gap:10px">
+<button class="btn btn-secondary" onclick="closePanel(event,'settingsOverlay')">取消</button>
+<button class="btn btn-primary" onclick="saveAndClose()">保存</button>
+</div>
+</div>
 </div>
 
 <!-- 统计面板 -->
-<div class="overlay hidden" id="statsOverlay" onclick="if(event.target===this)hidePanel('statsOverlay')">
-  <div class="panel" onclick="event.stopPropagation()">
-    <div class="panel-handle"></div>
-    <h3>📊 学习记录</h3>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-val" id="statDays">0</div><div class="stat-label">已学天数</div></div>
-      <div class="stat-card"><div class="stat-val" id="statWords">0</div><div class="stat-label">累计单词</div></div>
-      <div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-label">连续打卡</div></div>
-      <div class="stat-card"><div class="stat-val" id="statCat">--</div><div class="stat-label">当前分类</div></div>
-    </div>
-    <div class="streak-section"><div class="streak-emoji" id="streakEmoji">😴</div><div class="streak-msg" id="streakMsg"></div></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="hidePanel('statsOverlay')">关闭</button>
-  </div>
+<div class="overlay hidden" id="statsOverlay" onclick="closePanel(event,'statsOverlay')">
+<div class="panel" onclick="event.stopPropagation()">
+<div class="panel-handle"></div>
+<h3>学习记录</h3>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-val" id="statDays">0</div><div class="stat-label">学习天数</div></div>
+<div class="stat-card"><div class="stat-val" id="statWords">0</div><div class="stat-label">累计单词</div></div>
+<div class="stat-card"><div class="stat-val" id="statStreak">0</div><div class="stat-label">连续打卡</div></div>
+<div class="stat-card"><div class="stat-val" id="statCat">--</div><div class="stat-label">当前词库</div></div>
+</div>
+<div class="streak-section"><div class="streak-emoji" id="streakEmoji">-</div><div class="streak-msg" id="streakMsg"></div></div>
+<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="closePanel(event,'statsOverlay')">关闭</button>
+</div>
 </div>
 
+<!-- 用户面板 -->
+<div class="overlay hidden" id="userOverlay" onclick="closePanel(event,'userOverlay')">
+<div class="panel" onclick="event.stopPropagation()">
+<div class="panel-handle"></div>
+<h3>用户</h3>
+<div id="userPanel"></div>
+<div style="margin-top:8px"><button class="btn btn-secondary" style="width:100%" onclick="showLoginForm()">+ 创建新用户</button></div>
+</div>
+</div>
+
+<!-- 引导 -->
+<div class="guide-overlay hidden" id="guideOverlay">
+<div class="guide-card">
+<h4>添加到桌面</h4>
+<div class="step"><span class="step-n">1</span>Safari 打开本页面</div>
+<div class="step"><span class="step-n">2</span>点底部中间 <span class="hl">分享按钮</span></div>
+<div class="step"><span class="step-n">3</span>滑动找到 <span class="hl">「添加到主屏幕」</span></div>
+<div class="step"><span class="step-n">4</span>点右上角「添加」</div>
+<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="document.getElementById('guideOverlay').classList.add('hidden');localStorage.setItem('vw_g4','1')">知道了</button>
+</div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== 词库 ====================
-var W={};
-W.grade7=[{w:"apple",p:"/ˈæpl/",z:"n. 苹果",e:"She ate a red apple for lunch."},{w:"banana",p:"/bəˈnɑːnə/",z:"n. 香蕉",e:"Monkeys like to eat bananas."},{w:"orange",p:"/ˈɒrɪndʒ/",z:"n. 橙子；adj. 橙色的",e:"I drink a glass of orange juice every morning."},{w:"red",p:"/red/",z:"adj. 红色的",e:"The red dress looks beautiful on you."},{w:"blue",p:"/bluː/",z:"adj. 蓝色的",e:"The sky is blue on a clear day."},{w:"green",p:"/ɡriːn/",z:"adj. 绿色的",e:"The grass is green in spring."},{w:"yellow",p:"/ˈjeləʊ/",z:"adj. 黄色的",e:"The sunflowers are bright yellow."},{w:"white",p:"/waɪt/",z:"adj. 白色的",e:"She wore a white shirt to school."},{w:"black",p:"/blæk/",z:"adj. 黑色的",e:"He has a black cat at home."},{w:"pink",p:"/pɪŋk/",z:"adj. 粉色的",e:"The pink flowers are blooming."},{w:"mother",p:"/ˈmʌðə/",z:"n. 母亲",e:"My mother cooks delicious meals."},{w:"father",p:"/ˈfɑːðə/",z:"n. 父亲",e:"My father drives me to school."},{w:"sister",p:"/ˈsɪstə/",z:"n. 姐妹",e:"My sister is two years older."},{w:"brother",p:"/ˈbrʌðə/",z:"n. 兄弟",e:"My brother and I play football."},{w:"family",p:"/ˈfæməli/",z:"n. 家庭",e:"I love my family."},{w:"friend",p:"/frend/",z:"n. 朋友",e:"She is my best friend."},{w:"teacher",p:"/ˈtiːtʃə/",z:"n. 老师",e:"Our English teacher is kind."},{w:"student",p:"/ˈstjuːdənt/",z:"n. 学生",e:"There are forty students."},{w:"school",p:"/skuːl/",z:"n. 学校",e:"I go to school by bus."},{w:"classroom",p:"/ˈklɑːsruːm/",z:"n. 教室",e:"Keep the classroom clean."},{w:"book",p:"/bʊk/",z:"n. 书",e:"I borrowed a book."},{w:"pencil",p:"/ˈpensl/",z:"n. 铅笔",e:"May I borrow your pencil?"},{w:"desk",p:"/desk/",z:"n. 书桌",e:"There is a lamp on the desk."},{w:"chair",p:"/tʃeə/",z:"n. 椅子",e:"Take a seat on the chair."},{w:"rice",p:"/raɪs/",z:"n. 米饭",e:"We eat rice for dinner."},{w:"bread",p:"/bred/",z:"n. 面包",e:"I had bread and milk."},{w:"milk",p:"/mɪlk/",z:"n. 牛奶",e:"Milk is good for bones."},{w:"water",p:"/ˈwɔːtə/",z:"n. 水",e:"Drink more water."},{w:"chicken",p:"/ˈtʃɪkɪn/",z:"n. 鸡肉",e:"I like fried chicken."},{w:"fish",p:"/fɪʃ/",z:"n. 鱼",e:"We had fish for dinner."},{w:"egg",p:"/eɡ/",z:"n. 鸡蛋",e:"I eat two eggs."},{w:"dog",p:"/dɒɡ/",z:"n. 狗",e:"The dog is playing."},{w:"cat",p:"/kæt/",z:"n. 猫",e:"The cat is sleeping."},{w:"bird",p:"/bɜːd/",z:"n. 鸟",e:"A bird is singing."},{w:"rabbit",p:"/ˈræbɪt/",z:"n. 兔子",e:"The rabbit has long ears."},{w:"elephant",p:"/ˈelɪfənt/",z:"n. 大象",e:"The elephant is large."},{w:"monkey",p:"/ˈmʌŋki/",z:"n. 猴子",e:"The monkey is climbing."},{w:"panda",p:"/ˈpændə/",z:"n. 熊猫",e:"The panda is a national treasure."},{w:"head",p:"/hed/",z:"n. 头",e:"He nodded his head."},{w:"eye",p:"/aɪ/",z:"n. 眼睛",e:"She has big blue eyes."},{w:"ear",p:"/ɪə/",z:"n. 耳朵",e:"Rabbits have long ears."},{w:"nose",p:"/nəʊz/",z:"n. 鼻子",e:"The dog has a good nose."},{w:"mouth",p:"/maʊθ/",z:"n. 嘴巴",e:"Open your mouth."},{w:"hand",p:"/hænd/",z:"n. 手",e:"Raise your hand."},{w:"foot",p:"/fʊt/",z:"n. 脚",e:"He hurt his foot."},{w:"morning",p:"/ˈmɔːnɪŋ/",z:"n. 早晨",e:"Good morning!"},{w:"afternoon",p:"/ˌɑːftəˈnuːn/",z:"n. 下午",e:"We have PE in the afternoon."},{w:"evening",p:"/ˈiːvnɪŋ/",z:"n. 傍晚",e:"I do homework in the evening."},{w:"today",p:"/təˈdeɪ/",z:"n./adv. 今天",e:"Today is sunny."},{w:"tomorrow",p:"/təˈmɒrəʊ/",z:"n./adv. 明天",e:"We have a test tomorrow."},{w:"spring",p:"/sprɪŋ/",z:"n. 春天",e:"Flowers bloom in spring."},{w:"summer",p:"/ˈsʌmə/",z:"n. 夏天",e:"We swim in summer."},{w:"autumn",p:"/ˈɔːtəm/",z:"n. 秋天",e:"Leaves turn yellow."},{w:"winter",p:"/ˈwɪntə/",z:"n. 冬天",e:"It snows in winter."},{w:"happy",p:"/ˈhæpi/",z:"adj. 快乐的",e:"I feel happy."},{w:"sad",p:"/sæd/",z:"adj. 伤心的",e:"She looks sad."},{w:"big",p:"/bɪɡ/",z:"adj. 大的",e:"There is a big tree."},{w:"small",p:"/smɔːl/",z:"adj. 小的",e:"The kitten is small."},{w:"run",p:"/rʌn/",z:"v. 跑步",e:"Children love to run."},{w:"walk",p:"/wɔːk/",z:"v. 走路",e:"I walk to school."},{w:"eat",p:"/iːt/",z:"v. 吃",e:"Eat more vegetables."},{w:"drink",p:"/drɪŋk/",z:"v. 喝",e:"Drink some water."},{w:"read",p:"/riːd/",z:"v. 阅读",e:"I like to read."},{w:"write",p:"/raɪt/",z:"v. 写",e:"Write your name."},{w:"sing",p:"/sɪŋ/",z:"v. 唱歌",e:"She likes to sing."},{w:"dance",p:"/dɑːns/",z:"v. 跳舞",e:"The girls dance."},{w:"swim",p:"/swɪm/",z:"v. 游泳",e:"I learn to swim."},{w:"play",p:"/pleɪ/",z:"v. 玩；演奏",e:"We play basketball."},{w:"love",p:"/lʌv/",z:"v./n. 爱",e:"I love my family."},{w:"like",p:"/laɪk/",z:"v. 喜欢",e:"I like playing piano."},{w:"have",p:"/hæv/",z:"v. 有",e:"I have a new bike."},{w:"go",p:"/ɡəʊ/",z:"v. 去",e:"Let's go to the park."},{w:"come",p:"/kʌm/",z:"v. 来",e:"Come to my party."},{w:"see",p:"/siː/",z:"v. 看见",e:"I can see stars."},{w:"make",p:"/meɪk/",z:"v. 制作",e:"My mother makes a cake."},{w:"know",p:"/nəʊ/",z:"v. 知道",e:"Do you know the answer?"},{w:"think",p:"/θɪŋk/",z:"v. 想；认为",e:"I think English is fun."},{w:"want",p:"/wɒnt/",z:"v. 想要",e:"I want to be a doctor."}];
-
-W.grade8=[{w:"environment",p:"/ɪnˈvaɪrənmənt/",z:"n. 环境",e:"We should protect the environment."},{w:"pollution",p:"/pəˈluːʃən/",z:"n. 污染",e:"Air pollution is serious."},{w:"recycle",p:"/riːˈsaɪkl/",z:"v. 回收",e:"Recycle paper and plastic."},{w:"climate",p:"/ˈklaɪmət/",z:"n. 气候",e:"The climate is warm."},{w:"energy",p:"/ˈenədʒi/",z:"n. 能源；精力",e:"Solar energy is clean."},{w:"technology",p:"/tekˈnɒlədʒi/",z:"n. 技术",e:"Technology changes our lives."},{w:"internet",p:"/ˈɪntənet/",z:"n. 互联网",e:"The internet connects people."},{w:"software",p:"/ˈsɒftweə/",z:"n. 软件",e:"Update the software."},{w:"download",p:"/ˌdaʊnˈləʊd/",z:"v. 下载",e:"Download the app."},{w:"upload",p:"/ˌʌpˈləʊd/",z:"v. 上传",e:"Upload your homework."},{w:"emotion",p:"/ɪˈməʊʃən/",z:"n. 情绪",e:"Express your emotions."},{w:"confidence",p:"/ˈkɒnfɪdəns/",z:"n. 信心",e:"She has confidence."},{w:"patience",p:"/ˈpeɪʃəns/",z:"n. 耐心",e:"Learning requires patience."},{w:"respect",p:"/rɪˈspekt/",z:"v./n. 尊重",e:"Respect each other."},{w:"society",p:"/səˈsaɪəti/",z:"n. 社会",e:"Contribute to society."},{w:"community",p:"/kəˈmjuːnəti/",z:"n. 社区",e:"Our community organizes events."},{w:"volunteer",p:"/ˌvɒlənˈtɪə/",z:"n./v. 志愿者",e:"She volunteers at the hospital."},{w:"culture",p:"/ˈkʌltʃə/",z:"n. 文化",e:"Chinese culture has a long history."},{w:"tradition",p:"/trəˈdɪʃən/",z:"n. 传统",e:"It is a tradition."},{w:"basketball",p:"/ˈbɑːskɪtbɔːl/",z:"n. 篮球",e:"He plays basketball."},{w:"football",p:"/ˈfʊtbɔːl/",z:"n. 足球",e:"Football is popular."},{w:"exercise",p:"/ˈeksəsaɪz/",z:"v./n. 锻炼",e:"Regular exercise is good."},{w:"competition",p:"/ˌkɒmpəˈtɪʃən/",z:"n. 比赛",e:"She won the competition."},{w:"champion",p:"/ˈtʃæmpiən/",z:"n. 冠军",e:"He became the champion."},{w:"festival",p:"/ˈfestɪvəl/",z:"n. 节日",e:"Mid-Autumn Festival."},{w:"celebrate",p:"/ˈselɪbreɪt/",z:"v. 庆祝",e:"We celebrate birthdays."},{w:"communicate",p:"/kəˈmjuːnɪkeɪt/",z:"v. 交流",e:"Communicate with parents."},{w:"opinion",p:"/əˈpɪnjən/",z:"n. 观点",e:"Everyone has an opinion."},{w:"decision",p:"/dɪˈsɪʒən/",z:"n. 决定",e:"She made a decision."},{w:"influence",p:"/ˈɪnfluəns/",z:"v./n. 影响",e:"Parents influence children."},{w:"advantage",p:"/ədˈvɑːntɪdʒ/",z:"n. 优势",e:"An advantage is convenience."},{w:"disadvantage",p:"/ˌdɪsədˈvɑːntɪdʒ/",z:"n. 劣势",e:"A disadvantage is less interaction."},{w:"discover",p:"/dɪˈskʌvə/",z:"v. 发现",e:"Scientists discover new things."},{w:"explore",p:"/ɪkˈsplɔː/",z:"v. 探索",e:"Explore new ways."},{w:"achieve",p:"/əˈtʃiːv/",z:"v. 实现",e:"Achieve your dream."},{w:"improve",p:"/ɪmˈpruːv/",z:"v. 提高",e:"Improve your English."},{w:"develop",p:"/dɪˈveləp/",z:"v. 发展",e:"The city is developing."},{w:"require",p:"/rɪˈkwaɪə/",z:"v. 需要",e:"This job requires patience."},{w:"encourage",p:"/ɪnˈkʌrɪdʒ/",z:"v. 鼓励",e:"My parents encourage me."},{w:"protect",p:"/prəˈtekt/",z:"v. 保护",e:"Protect endangered animals."},{w:"responsible",p:"/rɪˈspɒnsəbl/",z:"adj. 负责的",e:"Everyone is responsible."},{w:"consider",p:"/kənˈsɪdə/",z:"v. 考虑",e:"Consider all options."},{w:"accept",p:"/əkˈsept/",z:"v. 接受",e:"Accept differences."},{w:"refuse",p:"/rɪˈfjuːz/",z:"v. 拒绝",e:"He refused to give up."},{w:"provide",p:"/prəˈvaɪd/",z:"v. 提供",e:"The school provides lunch."},{w:"compare",p:"/kəmˈpeə/",z:"v. 比较",e:"Don't compare yourself."},{w:"especially",p:"/ɪˈspeʃəli/",z:"adv. 尤其",e:"I love fruits, especially strawberries."},{w:"however",p:"/haʊˈevə/",z:"adv. 然而",e:"She got a good score, however."},{w:"although",p:"/ɔːlˈðəʊ/",z:"conj. 虽然",e:"Although it rained, we went."},{w:"success",p:"/səkˈses/",z:"n. 成功",e:"Hard work is the key to success."},{w:"progress",p:"/ˈprəʊɡres/",z:"n. 进步",e:"She made great progress."},{w:"challenge",p:"/ˈtʃælɪndʒ/",z:"n. 挑战",e:"Learning is a challenge."},{w:"experience",p:"/ɪkˈspɪəriəns/",z:"n./v. 经历",e:"A wonderful experience."},{w:"opportunity",p:"/ˌɒpəˈtjuːnəti/",z:"n. 机会",e:"A great opportunity."},{w:"knowledge",p:"/ˈnɒlɪdʒ/",z:"n. 知识",e:"Reading gives knowledge."},{w:"education",p:"/ˌedʒʊˈkeɪʃən/",z:"n. 教育",e:"Education is important."},{w:"behavior",p:"/bɪˈheɪvjə/",z:"n. 行为",e:"Good behavior is praised."},{w:"attitude",p:"/ˈætɪtjuːd/",z:"n. 态度",e:"A positive attitude."},{w:"relationship",p:"/rɪˈleɪʃənʃɪp/",z:"n. 关系",e:"Trust is the foundation."},{w:"generous",p:"/ˈdʒenərəs/",z:"adj. 慷慨的",e:"She is generous."},{w:"honest",p:"/ˈɒnɪst/",z:"adj. 诚实的",e:"An honest person tells the truth."},{w:"creative",p:"/kriˈeɪtɪv/",z:"adj. 有创造力的",e:"A creative solution."},{w:"independent",p:"/ˌɪndɪˈpendənt/",z:"adj. 独立的",e:"She is independent."},{w:"cooperate",p:"/kəʊˈɒpəreɪt/",z:"v. 合作",e:"We need to cooperate."},{w:"recommend",p:"/ˌrekəˈmend/",z:"v. 推荐",e:"I recommend this book."},{w:"population",p:"/ˌpɒpjuˈleɪʃən/",z:"n. 人口",e:"The population is growing."},{w:"appreciate",p:"/əˈpriːʃieɪt/",z:"v. 感激",e:"I appreciate your help."},{w:"mention",p:"/ˈmenʃən/",z:"v. 提到",e:"He mentioned an idea."},{w:"therefore",p:"/ˈðeəfɔː/",z:"adv. 因此",e:"He studied hard, therefore he passed."},{w:"government",p:"/ˈɡʌvənmənt/",z:"n. 政府",e:"The government built a park."},{w:"interview",p:"/ˈɪntəvjuː/",z:"n./v. 面试",e:"She prepared for the interview."},{w:"curious",p:"/ˈkjʊəriəs/",z:"adj. 好奇的",e:"Children are curious."},{w:"anxiety",p:"/æŋˈzaɪəti/",z:"n. 焦虑",e:"Exam anxiety is common."}];
-
-W.grade9=[{w:"abstract",p:"/ˈæbstrækt/",z:"adj. 抽象的",e:"Abstract painting."},{w:"concept",p:"/ˈkɒnsept/",z:"n. 概念",e:"A difficult concept."},{w:"philosophy",p:"/fɪˈlɒsəfi/",z:"n. 哲学",e:"She studies philosophy."},{w:"principle",p:"/ˈprɪnsəpl/",z:"n. 原则",e:"Honesty is a principle."},{w:"strategy",p:"/ˈstrætədʒi/",z:"n. 策略",e:"A marketing strategy."},{w:"perspective",p:"/pəˈspektɪv/",z:"n. 视角",e:"A different perspective."},{w:"phenomenon",p:"/fɪˈnɒmɪnən/",z:"n. 现象",e:"A natural phenomenon."},{w:"consequence",p:"/ˈkɒnsɪkwəns/",z:"n. 后果",e:"Actions have consequences."},{w:"significant",p:"/sɪɡˈnɪfɪkənt/",z:"adj. 重要的",e:"A significant discovery."},{w:"fundamental",p:"/ˌfʌndəˈmentl/",z:"adj. 基本的",e:"A fundamental right."},{w:"inequality",p:"/ˌɪnɪˈkwɒləti/",z:"n. 不平等",e:"Social inequality."},{w:"discrimination",p:"/dɪˌskrɪmɪˈneɪʃən/",z:"n. 歧视",e:"Racial discrimination."},{w:"poverty",p:"/ˈpɒvəti/",z:"n. 贫困",e:"Escape poverty."},{w:"justice",p:"/ˈdʒʌstɪs/",z:"n. 公正",e:"Equal justice."},{w:"democracy",p:"/dɪˈmɒkrəsi/",z:"n. 民主",e:"Democracy gives rights."},{w:"globalization",p:"/ˌɡləʊbəlaɪˈzeɪʃən/",z:"n. 全球化",e:"Globalization connects economies."},{w:"sustainable",p:"/səˈsteɪnəbl/",z:"adj. 可持续的",e:"Sustainable development."},{w:"controversial",p:"/ˌkɒntrəˈvɜːʃəl/",z:"adj. 有争议的",e:"A controversial law."},{w:"interpret",p:"/ɪnˈtɜːprɪt/",z:"v. 解释",e:"Interpret the poem."},{w:"evaluate",p:"/ɪˈvæljueɪt/",z:"v. 评估",e:"Evaluate progress."},{w:"analyze",p:"/ˈænəlaɪz/",z:"v. 分析",e:"Analyze data."},{w:"hypothesis",p:"/haɪˈpɒθəsɪs/",z:"n. 假设",e:"Test the hypothesis."},{w:"evidence",p:"/ˈevɪdəns/",z:"n. 证据",e:"No evidence."},{w:"theory",p:"/ˈθɪəri/",z:"n. 理论",e:"The theory of evolution."},{w:"experiment",p:"/ɪkˈsperɪmənt/",z:"n. 实验",e:"A science experiment."},{w:"conclusion",p:"/kənˈkluːʒən/",z:"n. 结论",e:"What conclusion?"},{w:"diversity",p:"/daɪˈvɜːsəti/",z:"n. 多样性",e:"Cultural diversity."},{w:"heritage",p:"/ˈherɪtɪdʒ/",z:"n. 遗产",e:"Cultural heritage."},{w:"identity",p:"/aɪˈdentəti/",z:"n. 身份",e:"Cultural identity."},{w:"migration",p:"/maɪˈɡreɪʃən/",z:"n. 迁移",e:"Bird migration."},{w:"diplomacy",p:"/dɪˈpləʊməsi/",z:"n. 外交",e:"The art of diplomacy."},{w:"compromise",p:"/ˈkɒmprəmaɪz/",z:"n./v. 妥协",e:"Sometimes you compromise."},{w:"negotiate",p:"/nɪˈɡəʊʃieɪt/",z:"v. 谈判",e:"Negotiate peace."},{w:"conflict",p:"/ˈkɒnflɪkt/",z:"n. 冲突",e:"The conflict lasted years."},{w:"cooperation",p:"/kəʊˌɒpəˈreɪʃən/",z:"n. 合作",e:"International cooperation."},{w:"contribution",p:"/ˌkɒntrɪˈbjuːʃən/",z:"n. 贡献",e:"A great contribution."},{w:"contemporary",p:"/kənˈtemprəri/",z:"adj. 当代的",e:"Contemporary art."},{w:"innovation",p:"/ˌɪnəˈveɪʃən/",z:"n. 创新",e:"Technological innovation."},{w:"evolution",p:"/ˌiːvəˈluːʃən/",z:"n. 进化",e:"The evolution of tech."},{w:"transformation",p:"/ˌtrænsfəˈmeɪʃən/",z:"n. 转变",e:"A transformation."},{w:"comprehensive",p:"/ˌkɒmprɪˈhensɪv/",z:"adj. 全面的",e:"A comprehensive plan."},{w:"alternative",p:"/ɔːlˈtɜːnətɪv/",z:"adj./n. 替代的",e:"Alternative energy."},{w:"emphasize",p:"/ˈemfəsaɪz/",z:"v. 强调",e:"Emphasize the importance."},{w:"illustrate",p:"/ˈɪləstreɪt/",z:"v. 说明",e:"Illustrate with an example."},{w:"demonstrate",p:"/ˈdemənstreɪt/",z:"v. 证明",e:"Demonstrate the effect."},{w:"acknowledge",p:"/əkˈnɒlɪdʒ/",z:"v. 承认",e:"Acknowledge the mistake."},{w:"distinguish",p:"/dɪˈstɪŋɡwɪʃ/",z:"v. 区分",e:"Distinguish the twins."},{w:"substance",p:"/ˈsʌbstəns/",z:"n. 物质",e:"A common substance."},{w:"component",p:"/kəmˈpəʊnənt/",z:"n. 组成部分",e:"Each component works."},{w:"structure",p:"/ˈstrʌktʃə/",z:"n. 结构",e:"The building structure."},{w:"objective",p:"/əbˈdʒektɪv/",z:"n./adj. 目标；客观的",e:"Our objective is clear."},{w:"subjective",p:"/səbˈdʒektɪv/",z:"adj. 主观的",e:"A subjective judgment."},{w:"relevant",p:"/ˈreləvənt/",z:"adj. 相关的",e:"Relevant information."},{w:"adequate",p:"/ˈædɪkwət/",z:"adj. 足够的",e:"Adequate resources."},{w:"crucial",p:"/ˈkruːʃəl/",z:"adj. 至关重要的",e:"Crucial for success."},{w:"sophisticated",p:"/səˈfɪstɪkeɪtɪd/",z:"adj. 精密的",e:"Sophisticated technology."},{w:"dilemma",p:"/dɪˈlemə/",z:"n. 困境",e:"Faced a dilemma."},{w:"consensus",p:"/kənˈsensəs/",z:"n. 共识",e:"Reached a consensus."},{w:"imply",p:"/ɪmˈplaɪ/",z:"v. 暗示",e:"His silence implies agreement."},{w:"statistics",p:"/stəˈtɪstɪks/",z:"n. 统计学",e:"Statistics show a decline."},{w:"cognitive",p:"/ˈkɒɡnɪtɪv/",z:"adj. 认知的",e:"Cognitive development."},{w:"conscious",p:"/ˈkɒnʃəs/",z:"adj. 有意识的",e:"A conscious effort."},{w:"intuition",p:"/ˌɪntjuˈɪʃən/",z:"n. 直觉",e:"She had an intuition."},{w:"mechanism",p:"/ˈmekənɪzəm/",z:"n. 机制",e:"A defense mechanism."},{w:"ecosystem",p:"/ˈiːkəʊsɪstəm/",z:"n. 生态系统",e:"A complex ecosystem."},{w:"biodiversity",p:"/ˌbaɪəʊdaɪˈvɜːsəti/",z:"n. 生物多样性",e:"Biodiversity is essential."},{w:"infrastructure",p:"/ˈɪnfrəstrʌktʃə/",z:"n. 基础设施",e:"Better infrastructure."},{w:"legitimate",p:"/lɪˈdʒɪtɪmət/",z:"adj. 合法的",e:"A legitimate right."},{w:"predominant",p:"/prɪˈdɒmɪnənt/",z:"adj. 主要的",e:"The predominant language."},{w:"paradox",p:"/ˈpærədɒks/",z:"n. 悖论",e:"It is a paradox."},{w:"perception",p:"/pəˈsepʃən/",z:"n. 感知",e:"Different from reality."}];
-
-W.grade10=[{w:"approach",p:"/əˈprəʊtʃ/",z:"v./n. 接近；方法",e:"We need a new approach to this problem."},{w:"assume",p:"/əˈsjuːm/",z:"v. 假设；承担",e:"Don't assume you know everything."},{w:"available",p:"/əˈveɪləbl/",z:"adj. 可用的",e:"Is this seat available?"},{w:"benefit",p:"/ˈbenɪfɪt/",z:"n./v. 利益；受益",e:"Exercise benefits your health."},{w:"circumstance",p:"/ˈsɜːkəmstæns/",z:"n. 情况；环境",e:"Under no circumstances should you give up."},{w:"commit",p:"/kəˈmɪt/",z:"v. 承诺；犯(罪)",e:"She committed herself to the project."},{w:"conduct",p:"/ˈkɒndʌkt/",z:"v./n. 进行；行为",e:"They conducted a survey."},{w:"constant",p:"/ˈkɒnstənt/",z:"adj. 持续的",e:"Constant practice leads to success."},{w:"consume",p:"/kənˈsjuːm/",z:"v. 消费；消耗",e:"This engine consumes a lot of fuel."},{w:"contact",p:"/ˈkɒntækt/",z:"n./v. 联系",e:"Please contact me by email."},{w:"contrast",p:"/ˈkɒntrɑːst/",z:"n./v. 对比",e:"In contrast to his brother, he is quiet."},{w:"convince",p:"/kənˈvɪns/",z:"v. 说服",e:"I convinced him to come with us."},{w:"decline",p:"/dɪˈklaɪn/",z:"v./n. 下降；拒绝",e:"The population is declining."},{w:"definitely",p:"/ˈdefɪnətli/",z:"adv. 肯定地",e:"I will definitely come to the party."},{w:"deserve",p:"/dɪˈzɜːv/",z:"v. 值得",e:"You deserve a good rest."},{w:"determine",p:"/dɪˈtɜːmɪn/",z:"v. 决定；确定",e:"She is determined to succeed."},{w:"device",p:"/dɪˈvaɪs/",z:"n. 设备",e:"This device can translate languages."},{w:"distinguish",p:"/dɪˈstɪŋɡwɪʃ/",z:"v. 区分",e:"It is hard to distinguish the two colors."},{w:"efficient",p:"/ɪˈfɪʃənt/",z:"adj. 高效的",e:"An efficient way to learn."},{w:"eliminate",p:"/ɪˈlɪmɪneɪt/",z:"v. 消除",e:"We must eliminate errors."},{w:"embrace",p:"/ɪmˈbreɪs/",z:"v. 拥抱；接纳",e:"Embrace new ideas."},{w:"emerge",p:"/ɪˈmɜːdʒ/",z:"v. 出现",e:"New problems emerged."},{w:"enable",p:"/ɪˈneɪbl/",z:"v. 使能够",e:"Technology enables faster communication."},{w:"enhance",p:"/ɪnˈhɑːns/",z:"v. 增强",e:"Reading enhances vocabulary."},{w:"entire",p:"/ɪnˈtaɪə/",z:"adj. 整个的",e:"The entire class passed the exam."},{w:"establish",p:"/ɪˈstæblɪʃ/",z:"v. 建立",e:"They established a new school."},{w:"estimate",p:"/ˈestɪmeɪt/",z:"v./n. 估计",e:"The estimate was too high."},{w:"eventually",p:"/ɪˈventʃuəli/",z:"adv. 最终",e:"He eventually became a doctor."},{w:"expose",p:"/ɪkˈspəʊz/",z:"v. 暴露；接触",e:"Expose yourself to English every day."},{w:"extreme",p:"/ɪkˈstriːm/",z:"adj. 极端的",e:"Extreme weather is becoming common."},{w:"feature",p:"/ˈfiːtʃə/",z:"n. 特征；v. 以…为特色",e:"The phone has many new features."},{w:"flexible",p:"/ˈfleksəbl/",z:"adj. 灵活的",e:"A flexible schedule helps."},{w:"focus",p:"/ˈfəʊkəs/",z:"v./n. 集中；焦点",e:"Focus on what matters."},{w:"frequent",p:"/ˈfriːkwənt/",z:"adj. 频繁的",e:"Frequent practice is key."},{w:"generate",p:"/ˈdʒenəreɪt/",z:"v. 产生",e:"The project generated a lot of interest."},{w:"gradual",p:"/ˈɡrædʒuəl/",z:"adj. 逐渐的",e:"Gradual improvement."},{w:"guarantee",p:"/ˌɡærənˈtiː/",z:"v./n. 保证",e:"Hard work guarantees nothing, but it helps."},{w:"identify",p:"/aɪˈdentɪfaɪ/",z:"v. 识别；确认",e:"Can you identify the problem?"},{w:"ignore",p:"/ɪɡˈnɔː/",z:"v. 忽视",e:"Don't ignore the warning signs."},{w:"impact",p:"/ˈɪmpækt/",z:"n./v. 影响；冲击",e:"The impact was significant."},{w:"implement",p:"/ˈɪmplɪment/",z:"v. 实施",e:"Implement the plan step by step."},{w:"indicate",p:"/ˈɪndɪkeɪt/",z:"v. 表明",e:"Research indicates otherwise."},{w:"initial",p:"/ɪˈnɪʃəl/",z:"adj. 最初的",e:"The initial plan failed."},{w:"invest",p:"/ɪnˈvest/",z:"v. 投资",e:"Invest time in learning."},{w:"involve",p:"/ɪnˈvɒlv/",z:"v. 涉及",e:"The job involves travel."},{w:"issue",p:"/ˈɪʃuː/",z:"n./v. 问题；发布",e:"This is a serious issue."},{w:"maintain",p:"/meɪnˈteɪn/",z:"v. 维持",e:"Maintain a positive attitude."},{w:"merely",p:"/ˈmɪəli/",z:"adv. 仅仅",e:"It is merely a suggestion."},{w:"motivate",p:"/ˈməʊtɪveɪt/",z:"v. 激励",e:"What motivates you?"},{w:"obtain",p:"/əbˈteɪn/",z:"v. 获得",e:"Obtain the necessary skills."},{w:"obvious",p:"/ˈɒbviəs/",z:"adj. 明显的",e:"The answer is obvious."},{w:"overcome",p:"/ˌəʊvəˈkʌm/",z:"v. 克服",e:"Overcome the difficulties."},{w:"participate",p:"/pɑːˈtɪsɪpeɪt/",z:"v. 参与",e:"Participate in the discussion."},{w:"potential",p:"/pəˈtenʃəl/",z:"n./adj. 潜力；潜在的",e:"She has great potential."},{w:"predict",p:"/prɪˈdɪkt/",z:"v. 预测",e:"Hard to predict the future."},{w:"previous",p:"/ˈpriːviəs/",z:"adj. 先前的",e:"Previous experience helps."},{w:"primary",p:"/ˈpraɪməri/",z:"adj. 主要的",e:"The primary goal is learning."},{w:"promote",p:"/prəˈməʊt/",z:"v. 促进；推广",e:"Promote healthy habits."},{w:"pursue",p:"/pəˈsjuː/",z:"v. 追求",e:"Pursue your dreams."},{w:"range",p:"/reɪndʒ/",z:"n./v. 范围",e:"A wide range of topics."},{w:"reflect",p:"/rɪˈflekt/",z:"v. 反映；反思",e:"Reflect on your mistakes."},{w:"rely",p:"/rɪˈlaɪ/",z:"v. 依赖",e:"Don't rely on luck."},{w:"represent",p:"/ˌreprɪˈzent/",z:"v. 代表",e:"She represents our school."},{w:"resource",p:"/rɪˈsɔːs/",z:"n. 资源",e:"Use online resources."},{w:"response",p:"/rɪˈspɒns/",z:"n. 回应",e:"I'm waiting for a response."},{w:"reveal",p:"/rɪˈviːl/",z:"v. 揭示",e:"The report reveals the truth."},{w:"shift",p:"/ʃɪft/",z:"v./n. 转变",e:"A shift in attitude."},{w:"specific",p:"/spəˈsɪfɪk/",z:"adj. 具体的",e:"Be more specific."},{w:"status",p:"/ˈsteɪtəs/",z:"n. 地位；状态",e:"Check the status online."},{w:"survive",p:"/səˈvaɪv/",z:"v. 幸存",e:"Survive the tough times."}];
-
-W.grade11=[{w:"abandon",p:"/əˈbændən/",z:"v. 放弃",e:"Never abandon your dreams."},{w:"absolute",p:"/ˈæbsəluːt/",z:"adj. 绝对的",e:"I have absolute confidence in you."},{w:"absorb",p:"/əbˈzɔːb/",z:"v. 吸收",e:"Plants absorb sunlight."},{w:"abundant",p:"/əˈbʌndənt/",z:"adj. 丰富的",e:"Abundant natural resources."},{w:"accompany",p:"/əˈkʌmpəni/",z:"v. 陪伴",e:"I will accompany you."},{w:"accumulate",p:"/əˈkjuːmjəleɪt/",z:"v. 积累",e:"Accumulate knowledge over time."},{w:"accurate",p:"/ˈækjərət/",z:"adj. 准确的",e:"Accurate information is vital."},{w:"adapt",p:"/əˈdæpt/",z:"v. 适应",e:"Adapt to new environments."},{w:"adequate",p:"/ˈædɪkwət/",z:"adj. 足够的",e:"Adequate preparation."},{w:"advocate",p:"/ˈædvəkeɪt/",z:"v. 提倡",e:"I advocate for daily reading."},{w:"aggressive",p:"/əˈɡresɪv/",z:"adj. 侵略的；积极的",e:"An aggressive marketing strategy."},{w:"allocate",p:"/ˈæləkeɪt/",z:"v. 分配",e:"Allocate time wisely."},{w:"anticipate",p:"/ænˈtɪsɪpeɪt/",z:"v. 预期",e:"I anticipate a bright future."},{w:"apparent",p:"/əˈpærənt/",z:"adj. 明显的",e:"It is apparent that he tried hard."},{w:"arbitrary",p:"/ˈɑːbɪtrəri/",z:"adj. 任意的",e:"The decision seemed arbitrary."},{w:"artificial",p:"/ˌɑːtɪˈfɪʃəl/",z:"adj. 人工的",e:"Artificial intelligence is evolving."},{w:"assign",p:"/əˈsaɪn/",z:"v. 分配；指定",e:"The teacher assigned homework."},{w:"associate",p:"/əˈsəʊʃieɪt/",z:"v. 联系",e:"People associate red with passion."},{w:"attain",p:"/əˈteɪn/",z:"v. 达到",e:"Attain your goals."},{w:"attribute",p:"/əˈtrɪbjuːt/",z:"v. 归因于",e:"Attribute success to hard work."},{w:"barrier",p:"/ˈbæriə/",z:"n. 障碍",e:"Language barriers can be overcome."},{w:"capable",p:"/ˈkeɪpəbl/",z:"adj. 有能力的",e:"You are capable of more."},{w:"category",p:"/ˈkætəɡəri/",z:"n. 类别",e:"Each category has different words."},{w:"collapse",p:"/kəˈlæps/",z:"v./n. 崩溃",e:"The bridge collapsed."},{w:"compensate",p:"/ˈkɒmpenseɪt/",z:"v. 补偿",e:"Compensate for the loss."},{w:"complex",p:"/ˈkɒmpleks/",z:"adj. 复杂的",e:"A complex problem."},{w:"concentrate",p:"/ˈkɒnsəntreɪt/",z:"v. 集中",e:"Concentrate on your studies."},{w:"confront",p:"/kənˈfrʌnt/",z:"v. 面对",e:"Confront your fears."},{w:"consistent",p:"/kənˈsɪstənt/",z:"adj. 一致的",e:"Be consistent in your efforts."},{w:"constitute",p:"/ˈkɒnstɪtjuːt/",z:"v. 构成",e:"Twelve months constitute a year."},{w:"consult",p:"/kənˈsʌlt/",z:"v. 咨询",e:"Consult a dictionary."},{w:"contradict",p:"/ˌkɒntrəˈdɪkt/",z:"v. 矛盾",e:"The evidence contradicts his story."},{w:"conventional",p:"/kənˈvenʃənəl/",z:"adj. 传统的",e:"Conventional wisdom says otherwise."},{w:"convert",p:"/kənˈvɜːt/",z:"v. 转换",e:"Convert ideas into action."},{w:"correspond",p:"/ˌkɒrɪˈspɒnd/",z:"v. 对应；通信",e:"The results correspond to our prediction."},{w:"crucial",p:"/ˈkruːʃəl/",z:"adj. 关键的",e:"This is a crucial moment."},{w:"debate",p:"/dɪˈbeɪt/",z:"n./v. 辩论",e:"The debate lasted two hours."},{w:"decorate",p:"/ˈdekəreɪt/",z:"v. 装饰",e:"Decorate the classroom."},{w:"defy",p:"/dɪˈfaɪ/",z:"v. 违抗",e:"The result defies explanation."},{w:"deliberate",p:"/dɪˈlɪbərət/",z:"adj. 故意的；深思熟虑的",e:"A deliberate choice."},{w:"demonstrate",p:"/ˈdemənstreɪt/",z:"v. 展示",e:"Demonstrate your skills."},{w:"deposit",p:"/dɪˈpɒzɪt/",z:"v./n. 存放；存款",e:"Deposit money in the bank."},{w:"derive",p:"/dɪˈraɪv/",z:"v. 源于",e:"The word derives from Latin."},{w:"dimension",p:"/daɪˈmenʃən/",z:"n. 维度",e:"A problem of global dimensions."},{w:"diminish",p:"/dɪˈmɪnɪʃ/",z:"v. 减少",e:"His influence diminished."},{w:"discipline",p:"/ˈdɪsɪplɪn/",z:"n./v. 纪律；训练",e:"Self-discipline is key."},{w:"distribute",p:"/dɪˈstrɪbjuːt/",z:"v. 分配",e:"Distribute the tasks evenly."},{w:"domestic",p:"/dəˈmestɪk/",z:"adj. 国内的；家庭的",e:"Domestic and international news."},{w:"dominate",p:"/ˈdɒmɪneɪt/",z:"v. 主导",e:"She dominated the conversation."},{w:"draft",p:"/drɑːft/",z:"n./v. 草稿；起草",e:"Write a draft first."},{w:"dramatic",p:"/drəˈmætɪk/",z:"adj. 戏剧性的",e:"A dramatic change."},{w:"elaborate",p:"/ɪˈlæbərət/",z:"adj. 精心制作的",e:"An elaborate plan."},{w:"encounter",p:"/ɪnˈkaʊntə/",z:"v./n. 遇到",e:"I encountered a problem."},{w:"enormous",p:"/ɪˈnɔːməs/",z:"adj. 巨大的",e:"An enormous challenge."},{w:"equivalent",p:"/ɪˈkwɪvələnt/",z:"adj./n. 等同的",e:"One mile is equivalent to 1.6 km."},{w:"evolve",p:"/ɪˈvɒlv/",z:"v. 进化；发展",e:"Languages evolve over time."},{w:"exceed",p:"/ɪkˈsiːd/",z:"v. 超过",e:"Results exceeded expectations."},{w:"explicit",p:"/ɪkˈsplɪsɪt/",z:"adj. 明确的",e:"Give explicit instructions."},{w:"exploit",p:"/ɪkˈsplɔɪt/",z:"v. 利用；开发",e:"Exploit your strengths."},{w:"external",p:"/ɪkˈstɜːnəl/",z:"adj. 外部的",e:"External factors matter."}];
-
-W.grade12=[{w:"accomplish",p:"/əˈkʌmplɪʃ/",z:"v. 完成",e:"Accomplish great things."},{w:"acquire",p:"/əˈkwaɪə/",z:"v. 获得",e:"Acquire new skills."},{w:"administer",p:"/ədˈmɪnɪstə/",z:"v. 管理",e:"Administer the exam."},{w:"adolescent",p:"/ˌædəˈlesənt/",z:"n./adj. 青少年",e:"Adolescent development."},{w:"agenda",p:"/əˈdʒendə/",z:"n. 议程",e:"What's on the agenda?"},{w:"ambiguous",p:"/æmˈbɪɡjuəs/",z:"adj. 模棱两可的",e:"An ambiguous statement."},{w:"analogy",p:"/əˈnælədʒi/",z:"n. 类比",e:"Use an analogy to explain."},{w:"anonymous",p:"/əˈnɒnɪməs/",z:"adj. 匿名的",e:"An anonymous letter."},{w:"assess",p:"/əˈses/",z:"v. 评估",e:"Assess the situation."},{w:"assimilate",p:"/əˈsɪmɪleɪt/",z:"v. 吸收；同化",e:"Assimilate new knowledge."},{w:"autonomy",p:"/ɔːˈtɒnəmi/",z:"n. 自主权",e:"Students need autonomy."},{w:"bias",p:"/ˈbaɪəs/",z:"n. 偏见",e:"Avoid personal bias."},{w:"bond",p:"/bɒnd/",z:"n./v. 纽带；结合",e:"Family bonds are important."},{w:"candidate",p:"/ˈkændɪdət/",z:"n. 候选人",e:"A strong candidate."},{w:"coincidence",p:"/kəʊˈɪnsɪdəns/",z:"n. 巧合",e:"What a coincidence!"},{w:"collaborate",p:"/kəˈlæbəreɪt/",z:"v. 合作",e:"Collaborate with teammates."},{w:"commence",p:"/kəˈmens/",z:"v. 开始",e:"The ceremony will commence soon."},{w:"commodity",p:"/kəˈmɒdəti/",z:"n. 商品",e:"Oil is a valuable commodity."},{w:"compatible",p:"/kəmˈpætəbl/",z:"adj. 兼容的",e:"Are these systems compatible?"},{w:"compile",p:"/kəmˈpaɪl/",z:"v. 汇编",e:"Compile a list of words."},{w:"comply",p:"/kəmˈplaɪ/",z:"v. 遵守",e:"Comply with the rules."},{w:"conceive",p:"/kənˈsiːv/",z:"v. 构想",e:"Conceive a new idea."},{w:"concrete",p:"/ˈkɒŋkriːt/",z:"adj. 具体的",e:"Concrete examples help."},{w:"confer",p:"/kənˈfɜː/",z:"v. 商议；授予",e:"Confer with your advisor."},{w:"conscientious",p:"/ˌkɒnʃiˈenʃəs/",z:"adj. 认真的",e:"A conscientious student."},{w:"consolidate",p:"/kənˈsɒlɪdeɪt/",z:"v. 巩固",e:"Consolidate what you learned."},{w:"constrain",p:"/kənˈstreɪn/",z:"v. 限制",e:"Don't let fear constrain you."},{w:"contemplate",p:"/ˈkɒntəmpleɪt/",z:"v. 沉思",e:"Contemplate the meaning of life."},{w:"criterion",p:"/kraɪˈtɪəriən/",z:"n. 标准",e:"What is the criterion?"},{w:"cynical",p:"/ˈsɪnɪkəl/",z:"adj. 愤世嫉俗的",e:"A cynical attitude."},{w:"deficit",p:"/ˈdefɪsɪt/",z:"n. 赤字；不足",e:"A budget deficit."},{w:"denote",p:"/dɪˈnəʊt/",z:"v. 表示",e:"The symbol denotes danger."},{w:"differentiate",p:"/ˌdɪfəˈrenʃieɪt/",z:"v. 区分",e:"Differentiate between fact and opinion."},{w:"dilemma",p:"/dɪˈlemə/",z:"n. 困境",e:"Faced with a dilemma."},{w:"diminish",p:"/dɪˈmɪnɪʃ/",z:"v. 减少",e:"The pain will diminish."},{w:"discern",p:"/dɪˈsɜːn/",z:"v. 辨别",e:"Discern the truth."},{w:"discrepancy",p:"/dɪˈskrepənsi/",z:"n. 差异",e:"A discrepancy in the data."},{w:"dispute",p:"/dɪˈspjuːt/",z:"n./v. 争议",e:"Settle the dispute."},{w:"distort",p:"/dɪˈstɔːt/",z:"v. 扭曲",e:"Distort the facts."},{w:"elaborate",p:"/ɪˈlæbərɪt/",z:"v. 详细说明",e:"Could you elaborate?"},{w:"empirical",p:"/ɪmˈpɪrɪkəl/",z:"adj. 经验的",e:"Empirical evidence."},{w:"endorse",p:"/ɪnˈdɔːs/",z:"v. 支持；背书",e:"I fully endorse this plan."},{w:"enlighten",p:"/ɪnˈlaɪtən/",z:"v. 启发",e:"Enlighten me on this topic."},{w:"entity",p:"/ˈentəti/",z:"n. 实体",e:"A separate legal entity."},{w:"envisage",p:"/ɪnˈvɪzɪdʒ/",z:"v. 设想",e:"I envisage a bright future."},{w:"essence",p:"/ˈesəns/",z:"n. 本质",e:"The essence of the argument."},{w:"explicit",p:"/ɪkˈsplɪsɪt/",z:"adj. 明确的",e:"Explicit instructions."},{w:"feasible",p:"/ˈfiːzəbl/",z:"adj. 可行的",e:"A feasible solution."},{w:"fluctuate",p:"/ˈflʌktʃueɪt/",z:"v. 波动",e:"Prices fluctuate daily."},{w:"formulate",p:"/ˈfɔːmjəleɪt/",z:"v. 制定",e:"Formulate a plan."},{w:"friction",p:"/ˈfrɪkʃən/",z:"n. 摩擦",e:"Reduce friction in the team."},{w:"hierarchy",p:"/ˈhaɪərɑːki/",z:"n. 等级制度",e:"Social hierarchy."},{w:"ideology",p:"/ˌaɪdiˈɒlədʒi/",z:"n. 意识形态",e:"Political ideology."},{w:"imminent",p:"/ˈɪmɪnənt/",z:"adj. 逼近的",e:"An imminent threat."},{w:"incentive",p:"/ɪnˈsentɪv/",z:"n. 激励",e:"Financial incentives."},{w:"incline",p:"/ɪnˈklaɪn/",z:"v. 倾向",e:"I incline to agree."},{w:"incorporate",p:"/ɪnˈkɔːpəreɪt/",z:"v. 合并",e:"Incorporate feedback."},{w:"indispensable",p:"/ˌɪndɪˈspensəbl/",z:"adj. 不可或缺的",e:"Water is indispensable."},{w:"inherent",p:"/ɪnˈhɪərənt/",z:"adj. 固有的",e:"Inherent risks."},{w:"integrity",p:"/ɪnˈteɡrəti/",z:"n. 正直；完整",e:"A man of integrity."}];
-
-W.ai=[{w:"algorithm",p:"/ˈælɡərɪðəm/",z:"n. 算法",e:"The algorithm can recognize patterns in data."},{w:"neural network",p:"/ˈnjʊərəl ˈnetwɜːk/",z:"n. 神经网络",e:"The neural network was trained on millions of images."},{w:"inference",p:"/ˈɪnfərəns/",z:"n. 推理",e:"The model performs inference in real time."},{w:"prompt",p:"/prɒmpt/",z:"n. 提示词",e:"A well-crafted prompt dramatically improves output."},{w:"token",p:"/ˈtəʊkən/",z:"n. 词元",e:"The API charges per token."},{w:"embedding",p:"/ɪmˈbedɪŋ/",z:"n. 嵌入向量",e:"Word embeddings capture semantic meaning."},{w:"transformer",p:"/trænsˈfɔːmə/",z:"n. Transformer模型",e:"The Transformer architecture revolutionized NLP."},{w:"deep learning",p:"/diːp ˈlɜːnɪŋ/",z:"n. 深度学习",e:"Deep learning requires large amounts of data."},{w:"generative AI",p:"/ˈdʒenərətɪv eɪ aɪ/",z:"n. 生成式AI",e:"Generative AI can create images, text, and music."},{w:"attention mechanism",p:"/əˈtenʃən ˈmekənɪzəm/",z:"n. 注意力机制",e:"The attention mechanism helps the model focus."},{w:"gradient descent",p:"/ˈɡreɪdiənt dɪˈsent/",z:"n. 梯度下降",e:"Gradient descent minimizes the loss function."},{w:"overfitting",p:"/ˌəʊvəˈfɪtɪŋ/",z:"n. 过拟合",e:"Overfitting occurs when the model memorizes."},{w:"large language model",p:"/lɑːdʒ ˈlæŋɡwɪdʒ ˈmɒdl/",z:"n. 大语言模型",e:"LLMs can write code and compose poetry."},{w:"reinforcement learning",p:"/ˌriːɪnˈfɔːsmənt ˈlɜːnɪŋ/",z:"n. 强化学习",e:"RL taught the robot to walk."},{w:"backpropagation",p:"/ˌbækprɒpəˈɡeɪʃən/",z:"n. 反向传播",e:"Backpropagation updates the model's weights."},{w:"GPT",p:"/dʒiː piː tiː/",z:"n. 生成式预训练Transformer",e:"GPT models show remarkable ability."},{w:"multimodal",p:"/ˌmʌltiˈməʊdəl/",z:"adj. 多模态的",e:"Multimodal models process text and images."},{w:"hallucination",p:"/həluːsɪˈneɪʃən/",z:"n. AI幻觉",e:"AI hallucination produces incorrect information."},{w:"alignment",p:"/əˈlaɪnmənt/",z:"n. 对齐",e:"AI alignment ensures goals match human values."},{w:"RAG",p:"/ræɡ/",z:"n. 检索增强生成",e:"RAG combines retrieval with generation."},{w:"temperature",p:"/ˈtemprətʃə/",z:"n. 采样参数",e:"Higher temperature makes output more creative."},{w:"quantization",p:"/ˌkwɒntaɪˈzeɪʃən/",z:"n. 量化",e:"Quantization reduces model size."},{w:"reasoning",p:"/ˈriːzənɪŋ/",z:"n. 推理",e:"Chain-of-thought reasoning improves math."},{w:"agent",p:"/ˈeɪdʒənt/",z:"n. AI智能体",e:"An AI agent can use tools."},{w:"chain-of-thought",p:"/tʃeɪn əv θɔːt/",z:"n. 思维链",e:"CoT greatly improves reasoning."},{w:"context window",p:"/ˈkɒntekst ˈwɪndəʊ/",z:"n. 上下文窗口",e:"A larger context window helps."},{w:"parameter",p:"/pəˈræmɪtə/",z:"n. 参数",e:"The model has 70B parameters."},{w:"open source",p:"/ˈəʊpən sɔːs/",z:"adj. 开源的",e:"Many AI models are open-source."},{w:"edge computing",p:"/edʒ kəmˈpjuːtɪŋ/",z:"n. 边缘计算",e:"Running models on edge devices."},{w:"synthetic data",p:"/sɪnˈθetɪk ˈdeɪtə/",z:"n. 合成数据",e:"Synthetic data supplements real data."},{w:"bias",p:"/ˈbaɪəs/",z:"n. 偏见",e:"AI can inherit bias from training data."},{w:"fairness",p:"/ˈfeənəs/",z:"n. 公平性",e:"Ensuring fairness in AI."},{w:"guardrail",p:"/ˈɡɑːrdreɪl/",z:"n. 护栏",e:"Guardrails prevent harmful content."},{w:"computer vision",p:"/kəmˈpjuːtə ˈvɪʒən/",z:"n. 计算机视觉",e:"CV enables self-driving cars to see."},{w:"NLP",p:"/en el piː/",z:"n. 自然语言处理",e:"NLP helps computers understand language."},{w:"epoch",p:"/ˈiːpɒk/",z:"n. 训练轮次",e:"The model trained for 50 epochs."},{w:"loss function",p:"/lɒs ˈfʌŋkʃən/",z:"n. 损失函数",e:"The loss function measures prediction error."},{w:"zero-shot",p:"/ˈzɪərəʊ ʃɒt/",z:"n. 零样本",e:"The model can do zero-shot classification."},{w:"machine learning",p:"/məˈʃiːn ˈlɜːnɪŋ/",z:"n. 机器学习",e:"ML algorithms can recognize patterns."},{w:"fine-tuning",p:"/faɪn ˈtjuːnɪŋ/",z:"n. 微调",e:"Fine-tuning saves time and data."},{w:"data mining",p:"/ˈdeɪtə ˈmaɪnɪŋ/",z:"n. 数据挖掘",e:"Data mining extracts patterns from large datasets."},{w:"cloud computing",p:"/klaʊd kəmˈpjuːtɪŋ/",z:"n. 云计算",e:"Cloud computing enables on-demand access to resources."},{w:"GPU",p:"/dʒiː piː juː/",z:"n. 图形处理器",e:"GPUs accelerate deep learning training."},{w:"dataset",p:"/ˈdeɪtəset/",z:"n. 数据集",e:"A high-quality dataset is essential for training."},{w:"supervised learning",p:"/ˈsuːpəvaɪzd ˈlɜːnɪŋ/",z:"n. 监督学习",e:"Supervised learning uses labeled data."},{w:"unsupervised learning",p:"/ʌnˈsuːpəvaɪzd ˈlɜːnɪŋ/",z:"n. 无监督学习",e:"Unsupervised learning finds hidden patterns."},{w:"adversarial attack",p:"/ˌædvəˈseəriəl əˈtæk/",z:"n. 对抗攻击",e:"Adversarial attacks can fool neural networks."},{w:"dropout",p:"/ˈdrɒpaʊt/",z:"n. 随机失活",e:"Dropout prevents the model from overfitting."},{w:"API",p:"/eɪ piː aɪ/",z:"n. 应用程序接口",e:"The API allows developers to integrate the service."},{w:"chatbot",p:"/ˈtʃætbɒt/",z:"n. 聊天机器人",e:"The chatbot handles customer inquiries 24/7."}];
-
-W.business=[{w:"revenue",p:"/ˈrevənjuː/",z:"n. 收入",e:"The company's revenue exceeded one billion."},{w:"stakeholder",p:"/ˈsteɪkhəʊldə/",z:"n. 利益相关者",e:"Consider all stakeholders."},{w:"leverage",p:"/ˈliːvərɪdʒ/",z:"v./n. 利用",e:"Leverage our network."},{w:"synergy",p:"/ˈsɪnədʒi/",z:"n. 协同效应",e:"The merger created synergy."},{w:"benchmark",p:"/ˈbentʃmɑːk/",z:"n. 基准",e:"Use industry benchmarks."},{w:"scalable",p:"/ˈskeɪləbl/",z:"adj. 可扩展的",e:"A scalable business model."},{w:"ROI",p:"/ɑːr əʊ ˈaɪ/",z:"n. 投资回报率",e:"ROI was over 300%."},{w:"KPI",p:"/keɪ piː ˈaɪ/",z:"n. 关键绩效指标",e:"Customer satisfaction is a key KPI."},{w:"quarterly",p:"/ˈkwɔːtəli/",z:"adj. 季度的",e:"The quarterly report showed growth."},{w:"margin",p:"/ˈmɑːdʒɪn/",z:"n. 利润率",e:"Improve profit margin."},{w:"merger",p:"/ˈmɜːdʒə/",z:"n. 合并",e:"The merger created the largest bank."},{w:"acquisition",p:"/ˌækwɪˈzɪʃən/",z:"n. 收购",e:"The acquisition cost $500M."},{w:"valuation",p:"/ˌvæljuˈeɪʃən/",z:"n. 估值",e:"The startup's valuation reached $2B."},{w:"pitch",p:"/pɪtʃ/",z:"v./n. 推介",e:"She delivered a compelling pitch."},{w:"venture capital",p:"/ˈventʃə ˈkæpɪtəl/",z:"n. 风险投资",e:"The startup raised $10M in VC."},{w:"burn rate",p:"/bɜːn reɪt/",z:"n. 烧钱率",e:"We have 12 months of runway."},{w:"churn rate",p:"/tʃɜːn reɪt/",z:"n. 客户流失率",e:"Reducing churn rate is essential."},{w:"bottom line",p:"/ˈbɒtəm laɪn/",z:"n. 净利润",e:"Focus on the bottom line."},{w:"due diligence",p:"/djuː ˈdɪlɪdʒəns/",z:"n. 尽职调查",e:"Thorough due diligence."},{w:"B2B",p:"/biː tuː biː/",z:"n. 企业对企业",e:"Our B2B platform."},{w:"B2C",p:"/biː tuː siː/",z:"n. 企业对消费者",e:"The B2C brand launched."},{w:"niche market",p:"/niːʃ ˈmɑːkɪt/",z:"n. 利基市场",e:"A niche market for left-handed tools."},{w:"value proposition",p:"/ˈvæljuː ˌprɒpəˈzɪʃən/",z:"n. 价值主张",e:"Our value proposition is speed."},{w:"pivot",p:"/ˈpɪvət/",z:"v./n. 转型",e:"The startup pivoted to B2B."},{w:"supply chain",p:"/səˈplaɪ tʃeɪn/",z:"n. 供应链",e:"The supply chain was disrupted."},{w:"inventory",p:"/ˈɪnvəntri/",z:"n. 库存",e:"Optimize inventory management."},{w:"conversion rate",p:"/kənˈvɜːʃən reɪt/",z:"n. 转化率",e:"A 12% conversion rate."},{w:"agile",p:"/ˈædʒaɪl/",z:"adj. 敏捷的",e:"Agile methodology."},{w:"sprint",p:"/sprɪnt/",z:"n. 冲刺",e:"The next sprint starts Monday."},{w:"roadmap",p:"/ˈrəʊdmæp/",z:"n. 路线图",e:"The product roadmap."},{w:"milestone",p:"/ˈmaɪlstəʊn/",z:"n. 里程碑",e:"A major milestone."},{w:"deliverable",p:"/dɪˈlɪvərəbl/",z:"n. 交付物",e:"The deliverable is a prototype."},{w:"negotiation",p:"/nɪˌɡəʊʃiˈeɪʃən/",z:"n. 谈判",e:"The negotiation took three rounds."},{w:"proposal",p:"/prəˈpəʊzəl/",z:"n. 提案",e:"We submitted a proposal."},{w:"recession",p:"/rɪˈseʃən/",z:"n. 经济衰退",e:"Preparing for a recession."},{w:"inflation",p:"/ɪnˈfleɪʃən/",z:"n. 通货膨胀",e:"Inflation pushed up costs."},{w:"asset",p:"/ˈæset/",z:"n. 资产",e:"A valuable asset."},{w:"equity",p:"/ˈekwəti/",z:"n. 股权",e:"Employees receive equity."},{w:"compliance",p:"/kəmˈplaɪəns/",z:"n. 合规",e:"Regulatory compliance."},{w:"audit",p:"/ˈɔːdɪt/",z:"n. 审计",e:"The annual audit starts soon."},{w:"startup",p:"/ˈstɑːtʌp/",z:"n. 创业公司",e:"The startup grew from 2 to 200 employees."},{w:"entrepreneur",p:"/ˌɒntrəprəˈnɜː/",z:"n. 企业家",e:"A successful entrepreneur takes calculated risks."},{w:"franchise",p:"/ˈfræntʃaɪz/",z:"n. 特许经营权",e:"They opened a new franchise in Shanghai."},{w:"dividend",p:"/ˈdɪvɪdend/",z:"n. 股息",e:"The company pays quarterly dividends."},{w:"portfolio",p:"/pɔːtˈfəʊliəʊ/",z:"n. 投资组合",e:"A diversified portfolio reduces risk."},{w:"cash flow",p:"/kæʃ fləʊ/",z:"n. 现金流",e:"Positive cash flow is essential for survival."},{w:"market share",p:"/ˈmɑːkɪt ʃeə/",z:"n. 市场份额",e:"They captured 15% market share."},{w:"brand",p:"/brænd/",z:"n. 品牌",e:"Building a strong brand takes years."},{w:"angel investor",p:"/ˈeɪndʒəl ɪnˈvestə/",z:"n. 天使投资人",e:"An angel investor provided the seed funding."},{w:"crowdfunding",p:"/ˈkraʊdfʌndɪŋ/",z:"n. 众筹",e:"They launched a successful crowdfunding campaign."}];
-
-W.daily=[{w:"happy",p:"/ˈhæpi/",z:"adj. 开心的",e:"The children look very happy today."},{w:"sad",p:"/sæd/",z:"adj. 难过的",e:"She felt sad when her friend moved away."},{w:"tired",p:"/ˈtaɪəd/",z:"adj. 累的",e:"I'm so tired after a long day at work."},{w:"hungry",p:"/ˈhʌŋɡri/",z:"adj. 饿的",e:"The kids are hungry, let's have dinner."},{w:"thirsty",p:"/ˈθɜːsti/",z:"adj. 渴的",e:"I'm thirsty, can I have some water?"},{w:"angry",p:"/ˈæŋɡri/",z:"adj. 生气的",e:"He was angry because someone broke his phone."},{w:"bored",p:"/bɔːd/",z:"adj. 无聊的",e:"The movie was so long that I got bored."},{w:"excited",p:"/ɪkˈsaɪtɪd/",z:"adj. 兴奋的",e:"The kids are excited about the trip."},{w:"nervous",p:"/ˈnɜːvəs/",z:"adj. 紧张的",e:"He felt nervous before the exam."},{w:"beautiful",p:"/ˈbjuːtɪfəl/",z:"adj. 美丽的",e:"What a beautiful sunset!"},{w:"ugly",p:"/ˈʌɡli/",z:"adj. 丑陋的",e:"The old building looks ugly now."},{w:"clean",p:"/kliːn/",z:"adj. 干净的",e:"Keep your room clean and tidy."},{w:"dirty",p:"/ˈdɜːti/",z:"adj. 脏的",e:"Your hands are dirty, go wash them."},{w:"neat",p:"/niːt/",z:"adj. 整洁的",e:"Her desk is always neat and organized."},{w:"fast",p:"/fɑːst/",z:"adj. 快的",e:"The train is very fast."},{w:"slow",p:"/sləʊ/",z:"adj. 慢的",e:"The internet is slow today."},{w:"easy",p:"/ˈiːzi/",z:"adj. 简单的",e:"This math problem is easy."},{w:"difficult",p:"/ˈdɪfɪkəlt/",z:"adj. 困难的",e:"Learning a new language is difficult."},{w:"hardworking",p:"/ˌhɑːdˈwɜːkɪŋ/",z:"adj. 勤奋的",e:"She is a hardworking student."},{w:"rich",p:"/rɪtʃ/",z:"adj. 富有的",e:"He became rich through hard work."},{w:"poor",p:"/pɔː/",z:"adj. 贫穷的",e:"The family was too poor to afford school."},{w:"young",p:"/jʌŋ/",z:"adj. 年轻的",e:"She is still young and full of energy."},{w:"old",p:"/əʊld/",z:"adj. 老的；旧的",e:"The old man told us a story."},{w:"busy",p:"/ˈbɪzi/",z:"adj. 忙碌的",e:"I'm too busy to go out tonight."},{w:"free",p:"/friː/",z:"adj. 空闲的；免费的",e:"Are you free this weekend?"},{w:"safe",p:"/seɪf/",z:"adj. 安全的",e:"Is this neighborhood safe at night?"},{w:"dangerous",p:"/ˈdeɪndʒərəs/",z:"adj. 危险的",e:"It is dangerous to swim here."},{w:"popular",p:"/ˈpɒpjələ/",z:"adj. 流行的",e:"This song is very popular among teenagers."},{w:"common",p:"/ˈkɒmən/",z:"adj. 常见的",e:"It is a common mistake."},{w:"rare",p:"/reə/",z:"adj. 稀有的",e:"This flower is very rare."},{w:"modern",p:"/ˈmɒdən/",z:"adj. 现代的",e:"The city has a mix of old and modern buildings."},{w:"traditional",p:"/trəˈdɪʃənəl/",z:"adj. 传统的",e:"We had a traditional Chinese wedding."},{w:"private",p:"/ˈpraɪvət/",z:"adj. 私人的",e:"This is a private conversation."},{w:"public",p:"/ˈpʌblɪk/",z:"adj. 公共的",e:"Smoking is not allowed in public places."},{w:"polite",p:"/pəˈlaɪt/",z:"adj. 有礼貌的",e:"It is polite to say thank you."},{w:"rude",p:"/ruːd/",z:"adj. 粗鲁的",e:"It was rude of him to interrupt."},{w:"friendly",p:"/ˈfrendli/",z:"adj. 友好的",e:"The people here are very friendly."},{w:"kind",p:"/kaɪnd/",z:"adj. 善良的",e:"She is always kind to animals."},{w:"careful",p:"/ˈkeəfʊl/",z:"adj. 小心的",e:"Be careful when crossing the road."},{w:"careless",p:"/ˈkeələs/",z:"adj. 粗心的",e:"A careless mistake cost him the game."},{w:"lazy",p:"/ˈleɪzi/",z:"adj. 懒惰的",e:"Don't be lazy, get up and exercise."},{w:"brave",p:"/breɪv/",z:"adj. 勇敢的",e:"The brave firefighter saved the child."},{w:"calm",p:"/kɑːm/",z:"adj. 冷静的",e:"Stay calm in an emergency."},{w:"confident",p:"/ˈkɒnfɪdənt/",z:"adj. 自信的",e:"She is confident about the interview."},{w:"proud",p:"/praʊd/",z:"adj. 自豪的",e:"I'm proud of my daughter."},{w:"shy",p:"/ʃaɪ/",z:"adj. 害羞的",e:"He was too shy to speak in class."},{w:"honest",p:"/ˈɒnɪst/",z:"adj. 诚实的",e:"An honest person tells the truth."},{w:"strict",p:"/strɪkt/",z:"adj. 严格的",e:"Our teacher is strict but fair."},{w:"patient",p:"/ˈpeɪʃənt/",z:"adj. 耐心的",e:"Be patient when teaching children."},{w:"grateful",p:"/ˈɡreɪtfʊl/",z:"adj. 感激的",e:"I am grateful for your help."}];
+// === Word Database ===
+W.grade7=[
+{w:'apple',p:'/\'aepl/',z:'n. 苹果',e:'She ate a red apple.'},
+{w:'banana',p:'/b..\'na:n../',z:'n. 香蕉',e:'Monkeys like bananas.'},
+{w:'orange',p:'/\'orindzh/',z:'n. 橙子',e:'Orange juice is fresh.'},
+{w:'grape',p:'/greip/',z:'n. 葡萄',e:'A bunch of grapes.'},
+{w:'pear',p:'/pe../',z:'n. 梨',e:'The pear is sweet.'},
+{w:'watermelon',p:'/\'wo:t..mel..n/',z:'n. 西瓜',e:'Eat watermelon in summer.'},
+{w:'strawberry',p:'/\'stro:b..ri/',z:'n. 草莓',e:'My favorite fruit.'},
+{w:'red',p:'/red/',z:'adj. 红色的',e:'A red dress.'},
+{w:'blue',p:'/blu:/',z:'adj. 蓝色的',e:'Blue sky.'},
+{w:'green',p:'/gri:n/',z:'adj. 绿色的',e:'Green grass.'},
+{w:'yellow',p:'/\'jel..u/',z:'adj. 黄色的',e:'Yellow sunflowers.'},
+{w:'white',p:'/wait/',z:'adj. 白色的',e:'A white shirt.'},
+{w:'black',p:'/blaek/',z:'adj. 黑色的',e:'A black cat.'},
+{w:'pink',p:'/pinkh/',z:'adj. 粉色的',e:'Pink flowers.'},
+{w:'mother',p:'/\'maedh../',z:'n. 母亲',e:'My mother cooks well.'},
+{w:'father',p:'/\'fa:dh../',z:'n. 父亲',e:'My father drives.'},
+{w:'sister',p:'/\'sist../',z:'n. 姐妹',e:'My sister is older.'},
+{w:'brother',p:'/\'braedh../',z:'n. 兄弟',e:'My brother plays football.'},
+{w:'family',p:'/\'faem..li/',z:'n. 家庭',e:'I love my family.'},
+{w:'friend',p:'/frend/',z:'n. 朋友',e:'My best friend.'},
+{w:'teacher',p:'/\'ti:tsh../',z:'n. 老师',e:'Our teacher is kind.'},
+{w:'student',p:'/\'stju:d..nt/',z:'n. 学生',e:'Forty students.'},
+{w:'school',p:'/sku:l/',z:'n. 学校',e:'Go to school.'},
+{w:'classroom',p:'/\'kla:sru:m/',z:'n. 教室',e:'Clean the classroom.'},
+{w:'library',p:'/\'laibr..ri/',z:'n. 图书馆',e:'Read in the library.'},
+{w:'playground',p:'/\'pleigraund/',z:'n. 操场',e:'On the playground.'},
+{w:'book',p:'/buk/',z:'n. 书',e:'Borrow a book.'},
+{w:'pencil',p:'/\'pensl/',z:'n. 铅笔',e:'Borrow your pencil?'},
+{w:'notebook',p:'/\'n..utbuk/',z:'n. 笔记本',e:'Write in notebook.'},
+{w:'bag',p:'/baeg/',z:'n. 书包',e:'My bag is heavy.'},
+{w:'desk',p:'/desk/',z:'n. 书桌',e:'A lamp on the desk.'},
+{w:'chair',p:'/tshe../',z:'n. 椅子',e:'Take a seat.'},
+{w:'rice',p:'/rais/',z:'n. 米饭',e:'Eat rice for dinner.'},
+{w:'bread',p:'/bred/',z:'n. 面包',e:'Bread and milk.'},
+{w:'milk',p:'/milk/',z:'n. 牛奶',e:'Good for bones.'},
+{w:'water',p:'/\'wo:t../',z:'n. 水',e:'Drink more water.'},
+{w:'chicken',p:'/\'tshik..n/',z:'n. 鸡肉',e:'Fried chicken.'},
+{w:'fish',p:'/fish/',z:'n. 鱼',e:'Fish for dinner.'},
+{w:'egg',p:'/eg/',z:'n. 鸡蛋',e:'Two eggs a day.'},
+{w:'dog',p:'/dog/',z:'n. 狗',e:'The dog plays.'},
+{w:'cat',p:'/kaet/',z:'n. 猫',e:'The cat sleeps.'},
+{w:'bird',p:'/b..:d/',z:'n. 鸟',e:'A bird sings.'},
+{w:'rabbit',p:'/\'raebit/',z:'n. 兔子',e:'Long ears.'},
+{w:'elephant',p:'/\'elif..nt/',z:'n. 大象',e:'Large elephant.'},
+{w:'monkey',p:'/\'maenkhki/',z:'n. 猴子',e:'The monkey climbs.'},
+{w:'panda',p:'/\'paend../',z:'n. 熊猫',e:'National treasure.'},
+{w:'tiger',p:'/\'taig../',z:'n. 老虎',e:'A wild tiger.'},
+{w:'lion',p:'/\'lai..n/',z:'n. 狮子',e:'King of animals.'},
+{w:'head',p:'/hed/',z:'n. 头',e:'Nod your head.'},
+{w:'eye',p:'/ai/',z:'n. 眼睛',e:'Big blue eyes.'},
+{w:'ear',p:'/i../',z:'n. 耳朵',e:'Long ears.'},
+{w:'nose',p:'/n..uz/',z:'n. 鼻子',e:'Good nose.'},
+{w:'mouth',p:'/mauth/',z:'n. 嘴巴',e:'Open your mouth.'},
+{w:'hand',p:'/haend/',z:'n. 手',e:'Raise your hand.'},
+{w:'foot',p:'/fut/',z:'n. 脚',e:'Hurt his foot.'},
+{w:'morning',p:'/\'mo:ninkh/',z:'n. 早晨',e:'Good morning!'},
+{w:'afternoon',p:'/..a:ft..\'nu:n/',z:'n. 下午',e:'In the afternoon.'},
+{w:'evening',p:'/\'i:vninkh/',z:'n. 傍晚',e:'Do homework.'},
+{w:'today',p:'/t..\'dei/',z:'n./adv. 今天',e:'Today is sunny.'},
+{w:'tomorrow',p:'/t..\'mor..u/',z:'n./adv. 明天',e:'Test tomorrow.'},
+{w:'spring',p:'/sprinkh/',z:'n. 春天',e:'Flowers in spring.'},
+{w:'summer',p:'/\'saem../',z:'n. 夏天',e:'Swim in summer.'},
+{w:'autumn',p:'/\'o:t..m/',z:'n. 秋天',e:'Leaves turn yellow.'},
+{w:'winter',p:'/\'wint../',z:'n. 冬天',e:'Snow in winter.'},
+{w:'happy',p:'/\'haepi/',z:'adj. 快乐的',e:'Feel happy today.'},
+{w:'sad',p:'/saed/',z:'adj. 伤心的',e:'She looks sad.'},
+{w:'big',p:'/big/',z:'adj. 大的',e:'A big tree.'},
+{w:'small',p:'/smo:l/',z:'adj. 小的',e:'Small kitten.'},
+{w:'long',p:'/lonkh/',z:'adj. 长的',e:'A long river.'},
+{w:'short',p:'/sho:t/',z:'adj. 短的；矮的',e:'Short but strong.'},
+{w:'run',p:'/raen/',z:'v. 跑步',e:'Love to run.'},
+{w:'walk',p:'/wo:k/',z:'v. 走路',e:'Walk to school.'},
+{w:'eat',p:'/i:t/',z:'v. 吃',e:'Eat vegetables.'},
+{w:'drink',p:'/drinkh/',z:'v. 喝',e:'Drink water.'},
+{w:'read',p:'/ri:d/',z:'v. 阅读',e:'Like to read.'},
+{w:'write',p:'/rait/',z:'v. 写',e:'Write your name.'},
+{w:'sing',p:'/sinkh/',z:'v. 唱歌',e:'She likes to sing.'},
+{w:'dance',p:'/da:ns/',z:'v. 跳舞',e:'Girls dance.'},
+{w:'swim',p:'/swim/',z:'v. 游泳',e:'Learn to swim.'},
+{w:'play',p:'/plei/',z:'v. 玩；演奏',e:'Play basketball.'},
+{w:'love',p:'/laev/',z:'v./n. 爱',e:'I love my family.'},
+{w:'like',p:'/laik/',z:'v. 喜欢',e:'I like piano.'},
+{w:'have',p:'/haev/',z:'v. 有',e:'A new bike.'},
+{w:'go',p:'/g..u/',z:'v. 去',e:'Go to the park.'},
+{w:'come',p:'/kaem/',z:'v. 来',e:'Come to my party.'},
+];
+W.grade8=[
+{w:'environment',p:'/in\'vai..r..nm..nt/',z:'n. 环境',e:'Protect the environment.'},
+{w:'pollution',p:'/p..\'lu:sh..n/',z:'n. 污染',e:'Air pollution is serious.'},
+{w:'recycle',p:'/..ri:\'saikl/',z:'v. 回收',e:'Recycle paper and plastic.'},
+{w:'climate',p:'/\'klaim..t/',z:'n. 气候',e:'The climate is warm.'},
+{w:'energy',p:'/\'en..dzhi/',z:'n. 能源；精力',e:'Solar energy is clean.'},
+{w:'technology',p:'/tek\'nol..dzhi/',z:'n. 技术',e:'Technology changes our lives.'},
+{w:'internet',p:'/\'int..net/',z:'n. 互联网',e:'The internet connects people.'},
+{w:'software',p:'/\'softwe../',z:'n. 软件',e:'Update the software.'},
+{w:'download',p:'/..daun\'l..ud/',z:'v. 下载',e:'Download the app.'},
+{w:'upload',p:'/..aep\'l..ud/',z:'v. 上传',e:'Upload your homework.'},
+{w:'emotion',p:'/i\'m..ush..n/',z:'n. 情绪',e:'Express your emotions.'},
+{w:'confidence',p:'/\'konfid..ns/',z:'n. 信心',e:'She has confidence.'},
+{w:'patience',p:'/\'peish..ns/',z:'n. 耐心',e:'Learning requires patience.'},
+{w:'respect',p:'/ri\'spekt/',z:'v./n. 尊重',e:'Respect each other.'},
+{w:'society',p:'/s..\'sai..ti/',z:'n. 社会',e:'Contribute to society.'},
+{w:'community',p:'/k..\'mju:n..ti/',z:'n. 社区',e:'Our community organizes events.'},
+{w:'volunteer',p:'/..vol..n\'ti../',z:'n./v. 志愿者',e:'She volunteers at the hospital.'},
+{w:'culture',p:'/\'kaeltsh../',z:'n. 文化',e:'Chinese culture is rich.'},
+{w:'tradition',p:'/tr..\'dish..n/',z:'n. 传统',e:'It is a tradition.'},
+{w:'basketball',p:'/\'ba:skitbo:l/',z:'n. 篮球',e:'He plays basketball.'},
+{w:'football',p:'/\'futbo:l/',z:'n. 足球',e:'Football is popular.'},
+{w:'exercise',p:'/\'eks..saiz/',z:'v./n. 锻炼',e:'Regular exercise is good.'},
+{w:'competition',p:'/..komp..\'tish..n/',z:'n. 比赛',e:'She won the competition.'},
+{w:'champion',p:'/\'tshaempi..n/',z:'n. 冠军',e:'He became the champion.'},
+{w:'festival',p:'/\'festiv..l/',z:'n. 节日',e:'Mid-Autumn Festival.'},
+{w:'celebrate',p:'/\'selibreit/',z:'v. 庆祝',e:'We celebrate birthdays.'},
+{w:'communicate',p:'/k..\'mju:nikeit/',z:'v. 交流',e:'Communicate with parents.'},
+{w:'opinion',p:'/..\'pinj..n/',z:'n. 观点',e:'Everyone has an opinion.'},
+{w:'decision',p:'/di\'sizh..n/',z:'n. 决定',e:'She made a decision.'},
+{w:'influence',p:'/\'influ..ns/',z:'v./n. 影响',e:'Parents influence children.'},
+{w:'advantage',p:'/..d\'va:ntidzh/',z:'n. 优势',e:'An advantage is convenience.'},
+{w:'disadvantage',p:'/..dis..d\'va:ntidzh/',z:'n. 劣势',e:'A disadvantage is less interaction.'},
+{w:'discover',p:'/di\'skaev../',z:'v. 发现',e:'Scientists discover new things.'},
+{w:'explore',p:'/ik\'splo:/',z:'v. 探索',e:'Explore new ways.'},
+{w:'achieve',p:'/..\'tshi:v/',z:'v. 实现',e:'Achieve your dream.'},
+{w:'improve',p:'/im\'pru:v/',z:'v. 提高',e:'Improve your English.'},
+{w:'develop',p:'/di\'vel..p/',z:'v. 发展',e:'The city is developing.'},
+{w:'require',p:'/ri\'kwai../',z:'v. 需要',e:'This job requires patience.'},
+{w:'encourage',p:'/in\'kaeridzh/',z:'v. 鼓励',e:'My parents encourage me.'},
+{w:'protect',p:'/pr..\'tekt/',z:'v. 保护',e:'Protect endangered animals.'},
+{w:'responsible',p:'/ri\'spons..bl/',z:'adj. 负责的',e:'Everyone is responsible.'},
+{w:'consider',p:'/k..n\'sid../',z:'v. 考虑',e:'Consider all options.'},
+{w:'accept',p:'/..k\'sept/',z:'v. 接受',e:'Accept differences.'},
+{w:'refuse',p:'/ri\'fju:z/',z:'v. 拒绝',e:'He refused to give up.'},
+{w:'provide',p:'/pr..\'vaid/',z:'v. 提供',e:'The school provides lunch.'},
+{w:'compare',p:'/k..m\'pe../',z:'v. 比较',e:'Don\'t compare yourself.'},
+{w:'especially',p:'/i\'spesh..li/',z:'adv. 尤其',e:'I love fruits, especially strawberries.'},
+{w:'however',p:'/hau\'ev../',z:'adv. 然而',e:'She got a good score, however.'},
+{w:'although',p:'/o:l\'dh..u/',z:'conj. 虽然',e:'Although it rained, we went.'},
+{w:'success',p:'/s..k\'ses/',z:'n. 成功',e:'Hard work is the key to success.'},
+{w:'progress',p:'/\'pr..ugres/',z:'n. 进步',e:'She made great progress.'},
+{w:'challenge',p:'/\'tshaelindzh/',z:'n. 挑战',e:'Learning is a challenge.'},
+{w:'experience',p:'/ik\'spi..ri..ns/',z:'n./v. 经历',e:'A wonderful experience.'},
+{w:'opportunity',p:'/..op..\'tju:n..ti/',z:'n. 机会',e:'A great opportunity.'},
+{w:'knowledge',p:'/\'nol..dzh/',z:'n. 知识',e:'Reading gives knowledge.'},
+{w:'education',p:'/..edzhu\'keish..n/',z:'n. 教育',e:'Education is important.'},
+{w:'behavior',p:'/bi\'heivj../',z:'n. 行为',e:'Good behavior is praised.'},
+{w:'attitude',p:'/\'aetitju:d/',z:'n. 态度',e:'A positive attitude.'},
+{w:'relationship',p:'/ri\'leish..nsh..p/',z:'n. 关系',e:'Trust is the foundation.'},
+{w:'generous',p:'/\'dzhen..r..s/',z:'adj. 慷慨的',e:'She is generous.'},
+{w:'honest',p:'/\'onist/',z:'adj. 诚实的',e:'An honest person tells the truth.'},
+{w:'creative',p:'/kri\'eitiv/',z:'adj. 有创造力的',e:'A creative solution.'},
+{w:'independent',p:'/..indi\'pend..nt/',z:'adj. 独立的',e:'She is independent.'},
+{w:'cooperate',p:'/k..u\'op..reit/',z:'v. 合作',e:'We need to cooperate.'},
+{w:'recommend',p:'/..rek..\'mend/',z:'v. 推荐',e:'I recommend this book.'},
+{w:'population',p:'/..popju\'leish..n/',z:'n. 人口',e:'The population is growing.'},
+{w:'appreciate',p:'/..\'pri:shieit/',z:'v. 感激',e:'I appreciate your help.'},
+{w:'mention',p:'/\'mensh..n/',z:'v. 提到',e:'He mentioned an idea.'},
+{w:'therefore',p:'/\'dhe..fo:/',z:'adv. 因此',e:'He studied hard, therefore he passed.'},
+{w:'government',p:'/\'gaev..nm..nt/',z:'n. 政府',e:'The government built a park.'},
+{w:'interview',p:'/\'int..vju:/',z:'n./v. 面试',e:'She prepared for the interview.'},
+{w:'curious',p:'/\'kju..ri..s/',z:'adj. 好奇的',e:'Children are curious.'},
+{w:'anxiety',p:'/aenkh\'zai..ti/',z:'n. 焦虑',e:'Exam anxiety is common.'},
+{w:'courage',p:'/\'kaeridzh/',z:'n. 勇气',e:'It takes courage to speak up.'},
+{w:'pressure',p:'/\'presh../',z:'n. 压力',e:'Peer pressure is real.'},
+{w:'balance',p:'/\'bael..ns/',z:'n./v. 平衡',e:'Balance work and play.'},
+{w:'mental',p:'/\'mentl/',z:'adj. 心理的',e:'Mental health matters.'},
+{w:'physical',p:'/\'fizikl/',z:'adj. 身体的',e:'Physical exercise.'},
+{w:'native',p:'/\'neitiv/',z:'adj. 本地的',e:'Native speakers speak fast.'},
+{w:'abroad',p:'/..\'bro:d/',z:'adv. 在国外',e:'Study abroad.'},
+{w:'exchange',p:'/iks\'tsheindzh/',z:'v./n. 交换',e:'An exchange program.'},
+{w:'volunteer',p:'/..vol..n\'ti../',z:'n. 志愿者',e:'Join as a volunteer.'},
+{w:'charity',p:'/\'tshaer..ti/',z:'n. 慈善',e:'Donate to charity.'},
+];
+W.grade9=[
+{w:'abstract',p:'/\'aebstraekt/',z:'adj. 抽象的',e:'Abstract painting.'},
+{w:'concept',p:'/\'konsept/',z:'n. 概念',e:'A difficult concept.'},
+{w:'philosophy',p:'/fi\'los..fi/',z:'n. 哲学',e:'She studies philosophy.'},
+{w:'principle',p:'/\'prins..pl/',z:'n. 原则',e:'Honesty is a principle.'},
+{w:'strategy',p:'/\'straet..dzhi/',z:'n. 策略',e:'A marketing strategy.'},
+{w:'perspective',p:'/p..\'spektiv/',z:'n. 视角',e:'A different perspective.'},
+{w:'phenomenon',p:'/fi\'nom..n..n/',z:'n. 现象',e:'A natural phenomenon.'},
+{w:'consequence',p:'/\'konsikw..ns/',z:'n. 后果',e:'Actions have consequences.'},
+{w:'significant',p:'/sig\'nifik..nt/',z:'adj. 重要的',e:'A significant discovery.'},
+{w:'fundamental',p:'/..faend..\'mentl/',z:'adj. 基本的',e:'A fundamental right.'},
+{w:'inequality',p:'/..ini\'kwol..ti/',z:'n. 不平等',e:'Social inequality.'},
+{w:'discrimination',p:'/di..skrimi\'neish..n/',z:'n. 歧视',e:'Racial discrimination.'},
+{w:'poverty',p:'/\'pov..ti/',z:'n. 贫困',e:'Escape poverty.'},
+{w:'justice',p:'/\'dzhaestis/',z:'n. 公正',e:'Equal justice.'},
+{w:'democracy',p:'/di\'mokr..si/',z:'n. 民主',e:'Democracy gives rights.'},
+{w:'globalization',p:'/..gl..ub..lai\'zeish..n/',z:'n. 全球化',e:'Globalization connects economies.'},
+{w:'sustainable',p:'/s..\'stein..bl/',z:'adj. 可持续的',e:'Sustainable development.'},
+{w:'controversial',p:'/..kontr..\'v..:sh..l/',z:'adj. 有争议的',e:'A controversial law.'},
+{w:'interpret',p:'/in\'t..:prit/',z:'v. 解释',e:'Interpret the poem.'},
+{w:'evaluate',p:'/i\'vaeljueit/',z:'v. 评估',e:'Evaluate progress.'},
+{w:'analyze',p:'/\'aen..laiz/',z:'v. 分析',e:'Analyze data.'},
+{w:'hypothesis',p:'/hai\'poth..sis/',z:'n. 假设',e:'Test the hypothesis.'},
+{w:'evidence',p:'/\'evid..ns/',z:'n. 证据',e:'No evidence.'},
+{w:'theory',p:'/\'thi..ri/',z:'n. 理论',e:'The theory of evolution.'},
+{w:'experiment',p:'/ik\'sperim..nt/',z:'n. 实验',e:'A science experiment.'},
+{w:'conclusion',p:'/k..n\'klu:zh..n/',z:'n. 结论',e:'What conclusion?'},
+{w:'diversity',p:'/dai\'v..:s..ti/',z:'n. 多样性',e:'Cultural diversity.'},
+{w:'heritage',p:'/\'heritidzh/',z:'n. 遗产',e:'Cultural heritage.'},
+{w:'identity',p:'/ai\'dent..ti/',z:'n. 身份',e:'Cultural identity.'},
+{w:'migration',p:'/mai\'greish..n/',z:'n. 迁移',e:'Bird migration.'},
+{w:'diplomacy',p:'/di\'pl..um..si/',z:'n. 外交',e:'The art of diplomacy.'},
+{w:'compromise',p:'/\'kompr..maiz/',z:'n./v. 妥协',e:'Sometimes you compromise.'},
+{w:'negotiate',p:'/ni\'g..ushieit/',z:'v. 谈判',e:'Negotiate peace.'},
+{w:'conflict',p:'/\'konflikt/',z:'n. 冲突',e:'The conflict lasted years.'},
+{w:'cooperation',p:'/k..u..op..\'reish..n/',z:'n. 合作',e:'International cooperation.'},
+{w:'contribution',p:'/..kontri\'bju:sh..n/',z:'n. 贡献',e:'A great contribution.'},
+{w:'contemporary',p:'/k..n\'temp..r..ri/',z:'adj. 当代的',e:'Contemporary art.'},
+{w:'innovation',p:'/..in..\'veish..n/',z:'n. 创新',e:'Technological innovation.'},
+{w:'evolution',p:'/..i:v..\'lu:sh..n/',z:'n. 进化',e:'The evolution of tech.'},
+{w:'transformation',p:'/..traensf..\'meish..n/',z:'n. 转变',e:'A transformation.'},
+{w:'comprehensive',p:'/..kompri\'hensiv/',z:'adj. 全面的',e:'A comprehensive plan.'},
+{w:'alternative',p:'/o:l\'t..:n..tiv/',z:'adj./n. 替代的',e:'Alternative energy.'},
+{w:'emphasize',p:'/\'emf..saiz/',z:'v. 强调',e:'Emphasize the importance.'},
+{w:'illustrate',p:'/\'il..streit/',z:'v. 说明',e:'Illustrate with an example.'},
+{w:'demonstrate',p:'/\'dem..nstreit/',z:'v. 证明',e:'Demonstrate the effect.'},
+{w:'acknowledge',p:'/..k\'nolidzh/',z:'v. 承认',e:'Acknowledge the mistake.'},
+{w:'distinguish',p:'/di\'stinkhwish/',z:'v. 区分',e:'Distinguish the twins.'},
+{w:'substance',p:'/\'saebst..ns/',z:'n. 物质',e:'A common substance.'},
+{w:'component',p:'/k..m\'p..un..nt/',z:'n. 组成部分',e:'Each component works.'},
+{w:'structure',p:'/\'straektsh../',z:'n. 结构',e:'The building structure.'},
+{w:'objective',p:'/..b\'dzhektiv/',z:'n./adj. 目标；客观的',e:'Our objective is clear.'},
+{w:'subjective',p:'/s..b\'dzhektiv/',z:'adj. 主观的',e:'A subjective judgment.'},
+{w:'relevant',p:'/\'rel..v..nt/',z:'adj. 相关的',e:'Relevant information.'},
+{w:'adequate',p:'/\'aedikw..t/',z:'adj. 足够的',e:'Adequate resources.'},
+{w:'crucial',p:'/\'kru:sh..l/',z:'adj. 至关重要的',e:'Crucial for success.'},
+{w:'sophisticated',p:'/s..\'fistikeitid/',z:'adj. 精密的',e:'Sophisticated technology.'},
+{w:'dilemma',p:'/di\'lem../',z:'n. 困境',e:'Faced a dilemma.'},
+{w:'consensus',p:'/k..n\'sens..s/',z:'n. 共识',e:'Reached a consensus.'},
+{w:'imply',p:'/im\'plai/',z:'v. 暗示',e:'His silence implies agreement.'},
+{w:'statistics',p:'/st..\'tistiks/',z:'n. 统计学',e:'Statistics show a decline.'},
+{w:'cognitive',p:'/\'kognitiv/',z:'adj. 认知的',e:'Cognitive development.'},
+{w:'conscious',p:'/\'konsh..s/',z:'adj. 有意识的',e:'A conscious effort.'},
+{w:'intuition',p:'/..intju\'ish..n/',z:'n. 直觉',e:'She had an intuition.'},
+{w:'mechanism',p:'/\'mek..niz..m/',z:'n. 机制',e:'A defense mechanism.'},
+{w:'ecosystem',p:'/\'i:k..usist..m/',z:'n. 生态系统',e:'A complex ecosystem.'},
+{w:'biodiversity',p:'/..bai..udai\'v..:s..ti/',z:'n. 生物多样性',e:'Biodiversity is essential.'},
+{w:'infrastructure',p:'/\'infr..straektsh../',z:'n. 基础设施',e:'Better infrastructure.'},
+{w:'legitimate',p:'/li\'dzhitim..t/',z:'adj. 合法的',e:'A legitimate right.'},
+{w:'predominant',p:'/pri\'domin..nt/',z:'adj. 主要的',e:'The predominant language.'},
+{w:'paradox',p:'/\'paer..doks/',z:'n. 悖论',e:'It is a paradox.'},
+{w:'perception',p:'/p..\'sepsh..n/',z:'n. 感知',e:'Different from reality.'},
+{w:'bias',p:'/\'bai..s/',z:'n. 偏见',e:'Avoid personal bias.'},
+{w:'insight',p:'/\'insait/',z:'n. 洞察力',e:'She has great insight.'},
+{w:'genre',p:'/\'zhonr../',z:'n. 体裁',e:'A new music genre.'},
+{w:'critique',p:'/kri\'ti:k/',z:'n./v. 评论',e:'A detailed critique.'},
+{w:'narrative',p:'/\'naer..tiv/',z:'n. 叙述',e:'A compelling narrative.'},
+{w:'irony',p:'/\'air..ni/',z:'n. 反讽',e:'The irony is obvious.'},
+{w:'profound',p:'/pr..\'faund/',z:'adj. 深刻的',e:'A profound question.'},
+{w:'subtle',p:'/\'saetl/',z:'adj. 微妙的',e:'A subtle difference.'},
+{w:'rigorous',p:'/\'rig..r..s/',z:'adj. 严谨的',e:'Rigorous training.'},
+{w:'empathy',p:'/\'emp..thi/',z:'n. 同理心',e:'Show empathy.'},
+{w:'resilience',p:'/ri\'zili..ns/',z:'n. 适应力',e:'Resilience is key.'},
+];
+W.grade10=[
+{w:'approach',p:'/..\'pr..utsh/',z:'v./n. 接近；方法',e:'A new approach to this problem.'},
+{w:'assume',p:'/..\'sju:m/',z:'v. 假设；承担',e:'Don\'t assume you know everything.'},
+{w:'available',p:'/..\'veil..bl/',z:'adj. 可用的',e:'Is this seat available?'},
+{w:'benefit',p:'/\'benifit/',z:'n./v. 利益；受益',e:'Exercise benefits your health.'},
+{w:'circumstance',p:'/\'s..:k..mstaens/',z:'n. 情况；环境',e:'Under no circumstances give up.'},
+{w:'commit',p:'/k..\'mit/',z:'v. 承诺；犯(罪)',e:'She committed to the project.'},
+{w:'conduct',p:'/\'kondukt/',z:'v./n. 进行；行为',e:'They conducted a survey.'},
+{w:'constant',p:'/\'konst..nt/',z:'adj. 持续的',e:'Constant practice leads to success.'},
+{w:'consume',p:'/k..n\'sju:m/',z:'v. 消费；消耗',e:'This engine consumes fuel.'},
+{w:'contact',p:'/\'kontaekt/',z:'n./v. 联系',e:'Please contact me by email.'},
+{w:'contrast',p:'/\'kontra:st/',z:'n./v. 对比',e:'In contrast to his brother, he is quiet.'},
+{w:'convince',p:'/k..n\'vins/',z:'v. 说服',e:'I convinced him to come.'},
+{w:'decline',p:'/di\'klain/',z:'v./n. 下降；拒绝',e:'The population is declining.'},
+{w:'definitely',p:'/\'defin..tli/',z:'adv. 肯定地',e:'I will definitely come.'},
+{w:'deserve',p:'/di\'z..:v/',z:'v. 值得',e:'You deserve a good rest.'},
+{w:'determine',p:'/di\'t..:min/',z:'v. 决定；确定',e:'She is determined to succeed.'},
+{w:'device',p:'/di\'vais/',z:'n. 设备',e:'This device can translate.'},
+{w:'efficient',p:'/i\'fish..nt/',z:'adj. 高效的',e:'An efficient way to learn.'},
+{w:'eliminate',p:'/i\'limineit/',z:'v. 消除',e:'We must eliminate errors.'},
+{w:'embrace',p:'/im\'breis/',z:'v. 拥抱；接纳',e:'Embrace new ideas.'},
+{w:'emerge',p:'/i\'m..:dzh/',z:'v. 出现',e:'New problems emerged.'},
+{w:'enable',p:'/i\'neibl/',z:'v. 使能够',e:'Technology enables faster communication.'},
+{w:'enhance',p:'/in\'ha:ns/',z:'v. 增强',e:'Reading enhances vocabulary.'},
+{w:'entire',p:'/in\'tai../',z:'adj. 整个的',e:'The entire class passed.'},
+{w:'establish',p:'/i\'staeblish/',z:'v. 建立',e:'They established a new school.'},
+{w:'estimate',p:'/\'estimeit/',z:'v./n. 估计',e:'The estimate was too high.'},
+{w:'eventually',p:'/i\'ventshu..li/',z:'adv. 最终',e:'He eventually became a doctor.'},
+{w:'expose',p:'/ik\'sp..uz/',z:'v. 暴露；接触',e:'Expose yourself to English.'},
+{w:'extreme',p:'/ik\'stri:m/',z:'adj. 极端的',e:'Extreme weather is common.'},
+{w:'feature',p:'/\'fi:tsh../',z:'n. 特征；v. 以...为特色',e:'Many new features.'},
+{w:'flexible',p:'/\'fleks..bl/',z:'adj. 灵活的',e:'A flexible schedule.'},
+{w:'focus',p:'/\'f..uk..s/',z:'v./n. 集中；焦点',e:'Focus on what matters.'},
+{w:'frequent',p:'/\'fri:kw..nt/',z:'adj. 频繁的',e:'Frequent practice is key.'},
+{w:'generate',p:'/\'dzhen..reit/',z:'v. 产生',e:'The project generated interest.'},
+{w:'gradual',p:'/\'graedzhu..l/',z:'adj. 逐渐的',e:'Gradual improvement.'},
+{w:'guarantee',p:'/..gaer..n\'ti:/',z:'v./n. 保证',e:'Hard work guarantees nothing.'},
+{w:'identify',p:'/ai\'dentifai/',z:'v. 识别；确认',e:'Can you identify the problem?'},
+{w:'ignore',p:'/ig\'no:/',z:'v. 忽视',e:'Don\'t ignore the warning signs.'},
+{w:'impact',p:'/\'impaekt/',z:'n./v. 影响；冲击',e:'The impact was significant.'},
+{w:'implement',p:'/\'impliment/',z:'v. 实施',e:'Implement the plan step by step.'},
+{w:'indicate',p:'/\'indikeit/',z:'v. 表明',e:'Research indicates otherwise.'},
+{w:'initial',p:'/i\'nish..l/',z:'adj. 最初的',e:'The initial plan failed.'},
+{w:'invest',p:'/in\'vest/',z:'v. 投资',e:'Invest time in learning.'},
+{w:'involve',p:'/in\'volv/',z:'v. 涉及',e:'The job involves travel.'},
+{w:'issue',p:'/\'ishu:/',z:'n./v. 问题；发布',e:'This is a serious issue.'},
+{w:'maintain',p:'/mein\'tein/',z:'v. 维持',e:'Maintain a positive attitude.'},
+{w:'merely',p:'/\'mi..li/',z:'adv. 仅仅',e:'It is merely a suggestion.'},
+{w:'motivate',p:'/\'m..utiveit/',z:'v. 激励',e:'What motivates you?'},
+{w:'obtain',p:'/..b\'tein/',z:'v. 获得',e:'Obtain necessary skills.'},
+{w:'obvious',p:'/\'obvi..s/',z:'adj. 明显的',e:'The answer is obvious.'},
+{w:'overcome',p:'/..auv..\'kaem/',z:'v. 克服',e:'Overcome the difficulties.'},
+{w:'participate',p:'/pa:\'tis..peit/',z:'v. 参与',e:'Participate in the discussion.'},
+{w:'potential',p:'/p..\'tensh..l/',z:'n./adj. 潜力；潜在的',e:'She has great potential.'},
+{w:'predict',p:'/pri\'dikt/',z:'v. 预测',e:'Hard to predict the future.'},
+{w:'previous',p:'/\'pri:vi..s/',z:'adj. 先前的',e:'Previous experience helps.'},
+{w:'primary',p:'/\'praim..ri/',z:'adj. 主要的',e:'The primary goal is learning.'},
+{w:'promote',p:'/pr..\'m..ut/',z:'v. 促进；推广',e:'Promote healthy habits.'},
+{w:'pursue',p:'/p..\'sju:/',z:'v. 追求',e:'Pursue your dreams.'},
+{w:'range',p:'/reindzh/',z:'n./v. 范围',e:'A wide range of topics.'},
+{w:'reflect',p:'/ri\'flekt/',z:'v. 反映；反思',e:'Reflect on your mistakes.'},
+{w:'rely',p:'/ri\'lai/',z:'v. 依赖',e:'Don\'t rely on luck.'},
+{w:'represent',p:'/..repri\'zent/',z:'v. 代表',e:'She represents our school.'},
+{w:'resource',p:'/ri\'so:s/',z:'n. 资源',e:'Use online resources.'},
+{w:'response',p:'/ri\'spons/',z:'n. 回应',e:'Waiting for a response.'},
+{w:'reveal',p:'/ri\'vi:l/',z:'v. 揭示',e:'The report reveals the truth.'},
+{w:'shift',p:'/shift/',z:'v./n. 转变',e:'A shift in attitude.'},
+{w:'specific',p:'/sp..\'sifik/',z:'adj. 具体的',e:'Be more specific.'},
+{w:'status',p:'/\'steit..s/',z:'n. 地位；状态',e:'Check the status online.'},
+{w:'survive',p:'/s..\'vaiv/',z:'v. 幸存',e:'Survive the tough times.'},
+{w:'target',p:'/\'ta:git/',z:'n./v. 目标',e:'Our target is 100% completion.'},
+{w:'tend',p:'/tend/',z:'v. 倾向于',e:'People tend to forget.'},
+{w:'unique',p:'/ju\'ni:k/',z:'adj. 独特的',e:'Every person is unique.'},
+{w:'vary',p:'/\'ve..ri/',z:'v. 变化',e:'Results may vary.'},
+{w:'whereas',p:'/we..r\'aes/',z:'conj. 而；却',e:'He is tall whereas she is short.'},
+{w:'widespread',p:'/\'waidspred/',z:'adj. 广泛的',e:'Widespread use of smartphones.'},
+{w:'worthwhile',p:'/..w..:th\'wail/',z:'adj. 值得的',e:'A worthwhile experience.'},
+{w:'yield',p:'/ji:ld/',z:'v. 产出；屈服',e:'The experiment yielded results.'},
+{w:'zone',p:'/z..un/',z:'n. 区域',e:'A no-parking zone.'},
+{w:'access',p:'/\'aekses/',z:'n./v. 进入；访问',e:'Access the website.'},
+{w:'adjust',p:'/..\'dzhaest/',z:'v. 调整',e:'Adjust the settings.'},
+{w:'alternative',p:'/o:l\'t..:n..tiv/',z:'adj. 替代的',e:'Alternative methods.'},
+];
+W.grade11=[
+{w:'abandon',p:'/..\'baend..n/',z:'v. 放弃',e:'Never abandon your dreams.'},
+{w:'absolute',p:'/\'aebs..lu:t/',z:'adj. 绝对的',e:'Absolute confidence.'},
+{w:'absorb',p:'/..b\'so:b/',z:'v. 吸收',e:'Plants absorb sunlight.'},
+{w:'abundant',p:'/..\'baend..nt/',z:'adj. 丰富的',e:'Abundant resources.'},
+{w:'accompany',p:'/..\'kaemp..ni/',z:'v. 陪伴',e:'I will accompany you.'},
+{w:'accumulate',p:'/..\'kju:mj..leit/',z:'v. 积累',e:'Accumulate knowledge.'},
+{w:'accurate',p:'/\'aekjur..t/',z:'adj. 准确的',e:'Accurate information.'},
+{w:'adapt',p:'/..\'daept/',z:'v. 适应',e:'Adapt to new environments.'},
+{w:'advocate',p:'/\'aedv..keit/',z:'v. 提倡',e:'I advocate for daily reading.'},
+{w:'aggressive',p:'/..\'gresiv/',z:'adj. 侵略的；积极的',e:'An aggressive strategy.'},
+{w:'allocate',p:'/\'ael..keit/',z:'v. 分配',e:'Allocate time wisely.'},
+{w:'anticipate',p:'/aen\'tis..peit/',z:'v. 预期',e:'I anticipate a bright future.'},
+{w:'apparent',p:'/..\'paer..nt/',z:'adj. 明显的',e:'It is apparent he tried.'},
+{w:'arbitrary',p:'/\'a:bitr..ri/',z:'adj. 任意的',e:'The decision seemed arbitrary.'},
+{w:'artificial',p:'/..a:ti\'fish..l/',z:'adj. 人工的',e:'Artificial intelligence.'},
+{w:'assign',p:'/..\'sain/',z:'v. 分配；指定',e:'The teacher assigned homework.'},
+{w:'associate',p:'/..\'s..ushieit/',z:'v. 联系',e:'Red is associated with passion.'},
+{w:'attain',p:'/..\'tein/',z:'v. 达到',e:'Attain your goals.'},
+{w:'attribute',p:'/..\'tribju:t/',z:'v. 归因于',e:'Attribute success to hard work.'},
+{w:'barrier',p:'/\'baeri../',z:'n. 障碍',e:'Language barriers.'},
+{w:'capable',p:'/\'keip..bl/',z:'adj. 有能力的',e:'You are capable.'},
+{w:'category',p:'/\'kaet..g..ri/',z:'n. 类别',e:'Each category has words.'},
+{w:'collapse',p:'/k..\'laeps/',z:'v./n. 崩溃',e:'The bridge collapsed.'},
+{w:'compensate',p:'/\'komp..nseit/',z:'v. 补偿',e:'Compensate for the loss.'},
+{w:'complex',p:'/\'kompleks/',z:'adj. 复杂的',e:'A complex problem.'},
+{w:'concentrate',p:'/\'kons..ntreit/',z:'v. 集中',e:'Concentrate on studies.'},
+{w:'confront',p:'/k..n\'fraent/',z:'v. 面对',e:'Confront your fears.'},
+{w:'consistent',p:'/k..n\'sist..nt/',z:'adj. 一致的',e:'Be consistent.'},
+{w:'constitute',p:'/\'konstitju:t/',z:'v. 构成',e:'Twelve months constitute a year.'},
+{w:'consult',p:'/k..n\'saelt/',z:'v. 咨询',e:'Consult a dictionary.'},
+{w:'contradict',p:'/..kontr..\'dikt/',z:'v. 矛盾',e:'Evidence contradicts his story.'},
+{w:'conventional',p:'/k..n\'vensh..n..l/',z:'adj. 传统的',e:'Conventional wisdom.'},
+{w:'convert',p:'/k..n\'v..:t/',z:'v. 转换',e:'Convert ideas into action.'},
+{w:'correspond',p:'/..kor..\'spond/',z:'v. 对应；通信',e:'Results correspond.'},
+{w:'crucial',p:'/\'kru:sh..l/',z:'adj. 关键的',e:'A crucial moment.'},
+{w:'debate',p:'/di\'beit/',z:'n./v. 辩论',e:'The debate lasted two hours.'},
+{w:'decorate',p:'/\'dek..reit/',z:'v. 装饰',e:'Decorate the classroom.'},
+{w:'defy',p:'/di\'fai/',z:'v. 违抗',e:'The result defies explanation.'},
+{w:'deliberate',p:'/di\'lib..r..t/',z:'adj. 故意的；深思熟虑的',e:'A deliberate choice.'},
+{w:'demonstrate',p:'/\'dem..nstreit/',z:'v. 展示',e:'Demonstrate your skills.'},
+{w:'deposit',p:'/di\'pozit/',z:'v./n. 存放；存款',e:'Deposit money in bank.'},
+{w:'derive',p:'/di\'raiv/',z:'v. 源于',e:'The word derives from Latin.'},
+{w:'dimension',p:'/dai\'mensh..n/',z:'n. 维度',e:'A global dimension.'},
+{w:'diminish',p:'/di\'minish/',z:'v. 减少',e:'His influence diminished.'},
+{w:'discipline',p:'/\'dis..plin/',z:'n./v. 纪律；训练',e:'Self-discipline is key.'},
+{w:'distribute',p:'/di\'stribju:t/',z:'v. 分配',e:'Distribute tasks evenly.'},
+{w:'domestic',p:'/d..\'mestik/',z:'adj. 国内的；家庭的',e:'Domestic news.'},
+{w:'dominate',p:'/\'domineit/',z:'v. 主导',e:'She dominated the conversation.'},
+{w:'draft',p:'/dra:ft/',z:'n./v. 草稿；起草',e:'Write a draft first.'},
+{w:'dramatic',p:'/dr..\'maetik/',z:'adj. 戏剧性的',e:'A dramatic change.'},
+{w:'elaborate',p:'/i\'laeb..r..t/',z:'adj. 精心制作的',e:'An elaborate plan.'},
+{w:'encounter',p:'/in\'kaunt../',z:'v./n. 遇到',e:'I encountered a problem.'},
+{w:'enormous',p:'/i\'no:m..s/',z:'adj. 巨大的',e:'An enormous challenge.'},
+{w:'equivalent',p:'/i\'kwiv..l..nt/',z:'adj./n. 等同的',e:'One mile equals 1.6 km.'},
+{w:'evolve',p:'/i\'volv/',z:'v. 进化；发展',e:'Languages evolve over time.'},
+{w:'exceed',p:'/ik\'si:d/',z:'v. 超过',e:'Results exceeded expectations.'},
+{w:'explicit',p:'/ik\'splisit/',z:'adj. 明确的',e:'Give explicit instructions.'},
+{w:'exploit',p:'/ik\'sploit/',z:'v. 利用；开发',e:'Exploit your strengths.'},
+{w:'external',p:'/ik\'st..:n..l/',z:'adj. 外部的',e:'External factors matter.'},
+{w:'facilitate',p:'/f..\'siliteit/',z:'v. 促进',e:'Facilitate learning.'},
+{w:'fluctuate',p:'/\'flaektshueit/',z:'v. 波动',e:'Prices fluctuate daily.'},
+{w:'fundamental',p:'/..faend..\'mentl/',z:'adj. 基本的',e:'Fundamental rights.'},
+{w:'genuine',p:'/\'dzhenjuin/',z:'adj. 真正的',e:'A genuine smile.'},
+{w:'highlight',p:'/\'hailait/',z:'v. 突出',e:'Highlight key points.'},
+{w:'ideology',p:'/..aidi\'ol..dzhi/',z:'n. 意识形态',e:'Political ideology.'},
+{w:'immerse',p:'/i\'m..:s/',z:'v. 沉浸',e:'Immerse in the culture.'},
+{w:'impose',p:'/im\'p..uz/',z:'v. 强加',e:'Don\'t impose your views.'},
+{w:'incentive',p:'/in\'sentiv/',z:'n. 激励',e:'Financial incentives.'},
+{w:'incorporate',p:'/in\'ko:p..reit/',z:'v. 合并',e:'Incorporate feedback.'},
+{w:'inevitable',p:'/i\'nevit..bl/',z:'adj. 不可避免的',e:'Change is inevitable.'},
+{w:'infrastructure',p:'/\'infr..straektsh../',z:'n. 基础设施',e:'Build infrastructure.'},
+{w:'inherent',p:'/in\'hi..r..nt/',z:'adj. 固有的',e:'Inherent risks.'},
+{w:'integrity',p:'/in\'tegr..ti/',z:'n. 正直；完整',e:'A man of integrity.'},
+{w:'intervene',p:'/..int..\'vi:n/',z:'v. 干预',e:'The government intervened.'},
+{w:'justify',p:'/\'dzhaestifai/',z:'v. 证明正当',e:'Justify your decision.'},
+{w:'manipulate',p:'/m..\'nipjuleit/',z:'v. 操控',e:'Manipulate data.'},
+{w:'nevertheless',p:'/..nev..dh..\'les/',z:'adv. 然而',e:'It was hard; nevertheless he succeeded.'},
+];
+W.grade12=[
+{w:'accomplish',p:'/..\'kaemplish/',z:'v. 完成',e:'Accomplish great things.'},
+{w:'acquire',p:'/..\'kwai../',z:'v. 获得',e:'Acquire new skills.'},
+{w:'administer',p:'/..d\'minist../',z:'v. 管理',e:'Administer the exam.'},
+{w:'adolescent',p:'/..aed..\'les..nt/',z:'n./adj. 青少年',e:'Adolescent development.'},
+{w:'agenda',p:'/..\'dzhend../',z:'n. 议程',e:'What\'s on the agenda?'},
+{w:'ambiguous',p:'/aem\'bigju..s/',z:'adj. 模棱两可的',e:'An ambiguous statement.'},
+{w:'analogy',p:'/..\'nael..dzhi/',z:'n. 类比',e:'Use an analogy.'},
+{w:'anonymous',p:'/..\'nonim..s/',z:'adj. 匿名的',e:'An anonymous letter.'},
+{w:'assess',p:'/..\'ses/',z:'v. 评估',e:'Assess the situation.'},
+{w:'assimilate',p:'/..\'simileit/',z:'v. 吸收；同化',e:'Assimilate new knowledge.'},
+{w:'autonomy',p:'/o:\'ton..mi/',z:'n. 自主权',e:'Students need autonomy.'},
+{w:'bond',p:'/bond/',z:'n./v. 纽带；结合',e:'Family bonds.'},
+{w:'candidate',p:'/\'kaendid..t/',z:'n. 候选人',e:'A strong candidate.'},
+{w:'coincidence',p:'/k..u\'insid..ns/',z:'n. 巧合',e:'What a coincidence!'},
+{w:'collaborate',p:'/k..\'laeb..reit/',z:'v. 合作',e:'Collaborate with teammates.'},
+{w:'commence',p:'/k..\'mens/',z:'v. 开始',e:'The ceremony will commence.'},
+{w:'commodity',p:'/k..\'mod..ti/',z:'n. 商品',e:'Oil is a commodity.'},
+{w:'compatible',p:'/k..m\'paet..bl/',z:'adj. 兼容的',e:'Are these compatible?'},
+{w:'compile',p:'/k..m\'pail/',z:'v. 汇编',e:'Compile a list.'},
+{w:'comply',p:'/k..m\'plai/',z:'v. 遵守',e:'Comply with rules.'},
+{w:'conceive',p:'/k..n\'si:v/',z:'v. 构想',e:'Conceive a new idea.'},
+{w:'concrete',p:'/\'konkhkri:t/',z:'adj. 具体的',e:'Concrete examples help.'},
+{w:'confer',p:'/k..n\'f..:/',z:'v. 商议；授予',e:'Confer with advisor.'},
+{w:'conscientious',p:'/..konshi\'ensh..s/',z:'adj. 认真的',e:'A conscientious student.'},
+{w:'consolidate',p:'/k..n\'solideit/',z:'v. 巩固',e:'Consolidate learning.'},
+{w:'constrain',p:'/k..n\'strein/',z:'v. 限制',e:'Don\'t let fear constrain you.'},
+{w:'contemplate',p:'/\'kont..mpleit/',z:'v. 沉思',e:'Contemplate life\'s meaning.'},
+{w:'criterion',p:'/krai\'ti..ri..n/',z:'n. 标准',e:'What is the criterion?'},
+{w:'cynical',p:'/\'sinik..l/',z:'adj. 愤世嫉俗的',e:'A cynical attitude.'},
+{w:'deficit',p:'/\'defisit/',z:'n. 赤字；不足',e:'A budget deficit.'},
+{w:'denote',p:'/di\'n..ut/',z:'v. 表示',e:'The symbol denotes danger.'},
+{w:'differentiate',p:'/..dif..\'renshieit/',z:'v. 区分',e:'Fact and opinion.'},
+{w:'discern',p:'/di\'s..:n/',z:'v. 辨别',e:'Discern the truth.'},
+{w:'discrepancy',p:'/di\'skrep..nsi/',z:'n. 差异',e:'A discrepancy in data.'},
+{w:'dispute',p:'/di\'spju:t/',z:'n./v. 争议',e:'Settle the dispute.'},
+{w:'distort',p:'/di\'sto:t/',z:'v. 扭曲',e:'Distort the facts.'},
+{w:'empirical',p:'/im\'pirik..l/',z:'adj. 经验的',e:'Empirical evidence.'},
+{w:'endorse',p:'/in\'do:s/',z:'v. 支持；背书',e:'I fully endorse this.'},
+{w:'enlighten',p:'/in\'lait..n/',z:'v. 启发',e:'Enlighten me on this.'},
+{w:'entity',p:'/\'ent..ti/',z:'n. 实体',e:'A legal entity.'},
+{w:'envisage',p:'/in\'vizidzh/',z:'v. 设想',e:'Envisage a bright future.'},
+{w:'essence',p:'/\'es..ns/',z:'n. 本质',e:'The essence of the argument.'},
+{w:'feasible',p:'/\'fi:z..bl/',z:'adj. 可行的',e:'A feasible solution.'},
+{w:'formulate',p:'/\'fo:mjuleit/',z:'v. 制定',e:'Formulate a plan.'},
+{w:'friction',p:'/\'friksh..n/',z:'n. 摩擦',e:'Reduce friction.'},
+{w:'hierarchy',p:'/\'hai..ra:rki/',z:'n. 等级制度',e:'Social hierarchy.'},
+{w:'imminent',p:'/\'imin..nt/',z:'adj. 逼近的',e:'An imminent threat.'},
+{w:'incline',p:'/in\'klain/',z:'v. 倾向',e:'I incline to agree.'},
+{w:'indispensable',p:'/..indi\'spens..bl/',z:'adj. 不可或缺的',e:'Water is indispensable.'},
+{w:'intrinsic',p:'/in\'trinsik/',z:'adj. 内在的',e:'Intrinsic motivation.'},
+{w:'lucrative',p:'/\'lu:kr..tiv/',z:'adj. 有利可图的',e:'A lucrative deal.'},
+{w:'manifest',p:'/\'maenifest/',z:'v. 显现',e:'Problems manifest over time.'},
+{w:'momentum',p:'/m..\'ment..m/',z:'n. 势头',e:'Gain momentum.'},
+{w:'negligible',p:'/\'neglidzh..bl/',z:'adj. 可忽略的',e:'A negligible amount.'},
+{w:'obsolete',p:'/\'obs..li:t/',z:'adj. 过时的',e:'Obsolete technology.'},
+{w:'plausible',p:'/\'plo:z..bl/',z:'adj. 貌似可信的',e:'A plausible explanation.'},
+{w:'pragmatic',p:'/praeg\'maetik/',z:'adj. 务实的',e:'A pragmatic approach.'},
+{w:'precaution',p:'/pri\'ko:sh..n/',z:'n. 预防措施',e:'Take precautions.'},
+{w:'preliminary',p:'/pri\'limin..ri/',z:'adj. 初步的',e:'Preliminary results.'},
+{w:'prerequisite',p:'/..pri:\'rekwizit/',z:'n. 先决条件',e:'A prerequisite for success.'},
+{w:'prolific',p:'/pr..\'lifik/',z:'adj. 多产的',e:'A prolific writer.'},
+{w:'proposition',p:'/..prop..\'zish..n/',z:'n. 主张；提议',e:'A business proposition.'},
+{w:'reconcile',p:'/\'rek..nsail/',z:'v. 调和',e:'Reconcile differences.'},
+{w:'simultaneously',p:'/..sim..l\'teini..sli/',z:'adv. 同时地',e:'Two things simultaneously.'},
+{w:'speculate',p:'/\'spekjuleit/',z:'v. 推测；投机',e:'Speculate about the future.'},
+{w:'spontaneous',p:'/spon\'teini..s/',z:'adj. 自发的',e:'A spontaneous trip.'},
+{w:'superfluous',p:'/su:\'p..:flu..s/',z:'adj. 多余的',e:'Superfluous details.'},
+{w:'synthesize',p:'/\'sinth..saiz/',z:'v. 综合',e:'Synthesize information.'},
+{w:'trivial',p:'/\'trivi..l/',z:'adj. 琐碎的',e:'A trivial matter.'},
+{w:'undermine',p:'/..aend..\'main/',z:'v. 削弱',e:'Undermine confidence.'},
+{w:'unprecedented',p:'/aen\'presidentid/',z:'adj. 前所未有的',e:'Unprecedented growth.'},
+{w:'validate',p:'/\'vaelideit/',z:'v. 验证',e:'Validate the data.'},
+{w:'vigorous',p:'/\'vig..r..s/',z:'adj. 精力充沛的',e:'Vigorous exercise.'},
+{w:'vulnerable',p:'/\'vaeln..r..bl/',z:'adj. 脆弱的',e:'Vulnerable to attack.'},
+];
+W.ai=[
+{w:'login',p:'/\'login/',z:'v./n. 登录',e:'Please login to your account.'},
+{w:'sign up',p:'/sain aep/',z:'v. 注册',e:'Sign up for a free trial.'},
+{w:'password',p:'/\'pa:sw..:d/',z:'n. 密码',e:'Create a strong password.'},
+{w:'account',p:'/..\'kaunt/',z:'n. 账号',e:'Create a new account.'},
+{w:'dashboard',p:'/\'daeshbo:d/',z:'n. 仪表板',e:'Check the dashboard.'},
+{w:'settings',p:'/\'setingz/',z:'n. 设置',e:'Go to settings.'},
+{w:'profile',p:'/\'pr..ufail/',z:'n. 个人资料',e:'Update your profile.'},
+{w:'notification',p:'/..n..utifi\'keish..n/',z:'n. 通知',e:'Turn on notifications.'},
+{w:'subscribe',p:'/s..b\'skraib/',z:'v. 订阅',e:'Subscribe to the newsletter.'},
+{w:'upgrade',p:'/aep\'greid/',z:'v. 升级',e:'Upgrade to the pro version.'},
+{w:'download',p:'/\'daunl..ud/',z:'v. 下载',e:'Download the installer.'},
+{w:'install',p:'/in\'sto:l/',z:'v. 安装',e:'Install the software.'},
+{w:'update',p:'/aep\'deit/',z:'v./n. 更新',e:'Check for updates.'},
+{w:'verify',p:'/\'verifai/',z:'v. 验证',e:'Verify your email address.'},
+{w:'authenticate',p:'/o:\'thentikeit/',z:'v. 认证',e:'Authenticate with your phone.'},
+{w:'authorize',p:'/\'o:th..raiz/',z:'v. 授权',e:'Authorize this application.'},
+{w:'API',p:'/..eipi:\'ai/',z:'n. 应用程序接口',e:'Use the API to fetch data.'},
+{w:'endpoint',p:'/\'endpoint/',z:'n. 接口端点',e:'Call the API endpoint.'},
+{w:'request',p:'/ri\'kwest/',z:'n./v. 请求',e:'Send a POST request.'},
+{w:'response',p:'/ri\'spons/',z:'n. 响应',e:'The server returned a response.'},
+{w:'status code',p:'/\'steit..s k..ud/',z:'n. 状态码',e:'A 200 status code means success.'},
+{w:'error',p:'/\'er../',z:'n. 错误',e:'An error occurred.'},
+{w:'timeout',p:'/\'taimaut/',z:'n. 超时',e:'The request timed out.'},
+{w:'rate limit',p:'/reit \'limit/',z:'n. 速率限制',e:'Hit the rate limit.'},
+{w:'token',p:'/\'t..uk..n/',z:'n. 令牌；词元',e:'Use an access token.'},
+{w:'session',p:'/\'sesh..n/',z:'n. 会话',e:'Your session has expired.'},
+{w:'cache',p:'/kaesh/',z:'n./v. 缓存',e:'Clear the browser cache.'},
+{w:'cookie',p:'/\'kuki/',z:'n. Cookie',e:'Accept cookies.'},
+{w:'browser',p:'/\'brauz../',z:'n. 浏览器',e:'Open in your browser.'},
+{w:'extension',p:'/ik\'stensh..n/',z:'n. 扩展',e:'Install a browser extension.'},
+{w:'plugin',p:'/\'plaegin/',z:'n. 插件',e:'A Chrome plugin.'},
+{w:'interface',p:'/\'int..feis/',z:'n. 界面',e:'A user-friendly interface.'},
+{w:'prompt',p:'/prompt/',z:'n. 提示词',e:'Write a good prompt.'},
+{w:'generate',p:'/\'dzhen..reit/',z:'v. 生成',e:'Generate an image.'},
+{w:'chatbot',p:'/\'tshaetbot/',z:'n. 聊天机器人',e:'A helpful chatbot.'},
+{w:'model',p:'/\'modl/',z:'n. 模型',e:'A large language model.'},
+{w:'context',p:'/\'kontekst/',z:'n. 上下文',e:'Provide enough context.'},
+{w:'output',p:'/\'autput/',z:'n. 输出',e:'Review the model output.'},
+{w:'input',p:'/\'input/',z:'n. 输入',e:'Check your input.'},
+{w:'feedback',p:'/\'fi:dbaek/',z:'n. 反馈',e:'Leave feedback.'},
+{w:'debug',p:'/..di:\'baeg/',z:'v. 调试',e:'Debug the code.'},
+{w:'deploy',p:'/di\'ploi/',z:'v. 部署',e:'Deploy to production.'},
+{w:'server',p:'/\'s..:v../',z:'n. 服务器',e:'The server is down.'},
+{w:'database',p:'/\'deit..beis/',z:'n. 数据库',e:'Query the database.'},
+{w:'query',p:'/\'kwi..ri/',z:'n./v. 查询',e:'Run a query.'},
+{w:'backup',p:'/\'baekaep/',z:'n./v. 备份',e:'Create a backup.'},
+{w:'restore',p:'/ri\'sto:/',z:'v. 恢复',e:'Restore from backup.'},
+{w:'encrypt',p:'/in\'kript/',z:'v. 加密',e:'Encrypt the data.'},
+{w:'decrypt',p:'/di:\'kript/',z:'v. 解密',e:'Decrypt the file.'},
+{w:'firewall',p:'/\'fai..wo:l/',z:'n. 防火墙',e:'Behind a firewall.'},
+{w:'domain',p:'/d..\'mein/',z:'n. 域名',e:'Register a domain.'},
+{w:'hosting',p:'/\'h..usting/',z:'n. 托管',e:'Web hosting service.'},
+{w:'repository',p:'/ri\'poz..tri/',z:'n. 仓库',e:'A code repository.'},
+{w:'commit',p:'/k..\'mit/',z:'v./n. 提交',e:'Make a commit.'},
+{w:'branch',p:'/bra:ntsh/',z:'n. 分支',e:'Create a new branch.'},
+{w:'merge',p:'/m..:dzh/',z:'v. 合并',e:'Merge the pull request.'},
+{w:'pull request',p:'/pul ri\'kwest/',z:'n. 拉取请求',e:'Submit a pull request.'},
+{w:'clone',p:'/kl..un/',z:'v. 克隆',e:'Clone the repository.'},
+{w:'fork',p:'/fo:k/',z:'v./n. 复刻',e:'Fork the project.'},
+{w:'render',p:'/\'rend../',z:'v. 渲染',e:'Render the component.'},
+{w:'compile',p:'/k..m\'pail/',z:'v. 编译',e:'Compile the program.'},
+{w:'runtime',p:'/\'raentaim/',z:'n. 运行时',e:'A runtime error.'},
+{w:'framework',p:'/\'freimw..:k/',z:'n. 框架',e:'A popular framework.'},
+{w:'library',p:'/\'laibr..ri/',z:'n. 库',e:'Import a library.'},
+{w:'dependency',p:'/di\'pend..nsi/',z:'n. 依赖',e:'Install dependencies.'},
+{w:'version',p:'/\'v..:zh..n/',z:'n. 版本',e:'The latest version.'},
+{w:'release',p:'/ri\'li:s/',z:'n./v. 发布',e:'A new release.'},
+{w:'patch',p:'/paetsh/',z:'n. 补丁',e:'A security patch.'},
+{w:'crash',p:'/kraesh/',z:'n./v. 崩溃',e:'The app crashed.'},
+{w:'bug',p:'/baeg/',z:'n. 漏洞',e:'Fix a bug.'},
+{w:'feature',p:'/\'fi:tsh../',z:'n. 功能',e:'A new feature.'},
+{w:'algorithm',p:'/\'aelg..ridh..m/',z:'n. 算法',e:'A sorting algorithm.'},
+{w:'neural network',p:'/\'nju..r..l \'netw..:k/',z:'n. 神经网络',e:'Train a neural network.'},
+{w:'dataset',p:'/\'deit..set/',z:'n. 数据集',e:'Load the dataset.'},
+{w:'training',p:'/\'treining/',z:'n. 训练',e:'Model training takes time.'},
+{w:'inference',p:'/\'inf..r..ns/',z:'n. 推理',e:'Real-time inference.'},
+{w:'embedding',p:'/im\'bed..ng/',z:'n. 嵌入向量',e:'Word embeddings.'},
+{w:'transformer',p:'/traens\'fo:m../',z:'n. Transformer',e:'Transformer architecture.'},
+{w:'attention',p:'/..\'tensh..n/',z:'n. 注意力机制',e:'Attention mechanism.'},
+{w:'open source',p:'/\'..up..n so:s/',z:'adj. 开源的',e:'Open source software.'},
+{w:'fine-tuning',p:'/fain \'tju:ning/',z:'n. 微调',e:'Fine-tuning saves time.'},
+{w:'hallucination',p:'/h..lu:si\'neish..n/',z:'n. AI幻觉',e:'AI hallucination.'},
+{w:'chat history',p:'/tshaet \'hist..ri/',z:'n. 聊天记录',e:'Clear chat history.'},
+{w:'voice input',p:'/vois \'input/',z:'n. 语音输入',e:'Use voice input.'},
+{w:'autocomplete',p:'/\'o:t..uk..m\'pli:t/',z:'n. 自动补全',e:'Code autocomplete.'},
+{w:'clipboard',p:'/\'klipbo:d/',z:'n. 剪贴板',e:'Copy to clipboard.'},
+{w:'search',p:'/s..:tsh/',z:'n./v. 搜索',e:'Search the web.'},
+{w:'filter',p:'/\'filt../',z:'n./v. 筛选',e:'Apply a filter.'},
+{w:'sort',p:'/so:t/',z:'v. 排序',e:'Sort by date.'},
+{w:'export',p:'/ik\'spo:t/',z:'v. 导出',e:'Export as PDF.'},
+{w:'import',p:'/im\'po:t/',z:'v. 导入',e:'Import from file.'},
+{w:'sync',p:'/sinkh/',z:'v./n. 同步',e:'Sync across devices.'},
+{w:'cloud',p:'/klaud/',z:'n. 云',e:'Store in the cloud.'},
+{w:'bandwidth',p:'/\'baendwidth/',z:'n. 带宽',e:'Limited bandwidth.'},
+{w:'latency',p:'/\'leit..nsi/',z:'n. 延迟',e:'Low latency network.'},
+{w:'protocol',p:'/\'pr..ut..kol/',z:'n. 协议',e:'HTTP protocol.'},
+{w:'configure',p:'/k..n\'fig../',z:'v. 配置',e:'Configure the settings.'},
+{w:'reset',p:'/..ri:\'set/',z:'v. 重置',e:'Reset to default.'},
+];
+W.business=[
+{w:'revenue',p:'/\'rev..nju:/',z:'n. 收入',e:'Revenue exceeded one billion.'},
+{w:'profit',p:'/\'profit/',z:'n. 利润',e:'Net profit margin.'},
+{w:'loss',p:'/los/',z:'n. 亏损',e:'Operating at a loss.'},
+{w:'stakeholder',p:'/\'steikh..uld../',z:'n. 利益相关者',e:'Consider all stakeholders.'},
+{w:'leverage',p:'/\'li:v..ridzh/',z:'v./n. 利用',e:'Leverage our network.'},
+{w:'synergy',p:'/\'sin..dzhi/',z:'n. 协同效应',e:'The merger created synergy.'},
+{w:'benchmark',p:'/\'bentshma:k/',z:'n. 基准',e:'Use industry benchmarks.'},
+{w:'scalable',p:'/\'skeil..bl/',z:'adj. 可扩展的',e:'A scalable business model.'},
+{w:'ROI',p:'/..a:r..u:\'ai/',z:'n. 投资回报率',e:'ROI was over 300%.'},
+{w:'KPI',p:'/..keipi:\'ai/',z:'n. 关键绩效指标',e:'Customer satisfaction is a KPI.'},
+{w:'quarterly',p:'/\'kwo:t..li/',z:'adj. 季度的',e:'Quarterly report.'},
+{w:'margin',p:'/\'ma:dzin/',z:'n. 利润率',e:'Improve profit margin.'},
+{w:'merger',p:'/\'m..:dzh../',z:'n. 合并',e:'The merger was approved.'},
+{w:'acquisition',p:'/..aekwi\'zish..n/',z:'n. 收购',e:'The acquisition cost $500M.'},
+{w:'valuation',p:'/..vaelju\'eish..n/',z:'n. 估值',e:'Startup valuation.'},
+{w:'pitch',p:'/pitsh/',z:'v./n. 推介',e:'A compelling pitch.'},
+{w:'venture capital',p:'/\'ventsh.. \'kaepitl/',z:'n. 风险投资',e:'Raised $10M in VC.'},
+{w:'burn rate',p:'/b..:n reit/',z:'n. 烧钱率',e:'12 months of runway.'},
+{w:'churn rate',p:'/tsh..:n reit/',z:'n. 客户流失率',e:'Reduce churn rate.'},
+{w:'bottom line',p:'/\'bot..m lain/',z:'n. 净利润',e:'Focus on the bottom line.'},
+{w:'due diligence',p:'/dju:\'dilidzh..ns/',z:'n. 尽职调查',e:'Thorough due diligence.'},
+{w:'B2B',p:'/..bi:tu:\'bi:/',z:'n. 企业对企业',e:'B2B platform.'},
+{w:'B2C',p:'/..bi:tu:\'si:/',z:'n. 企业对消费者',e:'B2C brand.'},
+{w:'niche market',p:'/ni:sh \'ma:kit/',z:'n. 利基市场',e:'A niche market.'},
+{w:'value proposition',p:'/\'vaelju: ..prop..\'zish..n/',z:'n. 价值主张',e:'Our value proposition.'},
+{w:'pivot',p:'/\'piv..t/',z:'v./n. 转型',e:'The startup pivoted to B2B.'},
+{w:'supply chain',p:'/s..\'plai tshein/',z:'n. 供应链',e:'Supply chain disruption.'},
+{w:'inventory',p:'/\'inv..ntri/',z:'n. 库存',e:'Optimize inventory.'},
+{w:'conversion rate',p:'/k..n\'v..:zh..n reit/',z:'n. 转化率',e:'12% conversion rate.'},
+{w:'agile',p:'/\'aedzhail/',z:'adj. 敏捷的',e:'Agile methodology.'},
+{w:'sprint',p:'/sprint/',z:'n. 冲刺',e:'Next sprint starts Monday.'},
+{w:'roadmap',p:'/\'r..udmaep/',z:'n. 路线图',e:'Product roadmap.'},
+{w:'milestone',p:'/\'mailst..un/',z:'n. 里程碑',e:'A major milestone.'},
+{w:'deliverable',p:'/di\'liv..r..bl/',z:'n. 交付物',e:'The deliverable is a prototype.'},
+{w:'negotiation',p:'/ni..g..ushi\'eish..n/',z:'n. 谈判',e:'The negotiation took three rounds.'},
+{w:'proposal',p:'/pr..\'p..uz..l/',z:'n. 提案',e:'Submitted a proposal.'},
+{w:'recession',p:'/ri\'sesh..n/',z:'n. 经济衰退',e:'Preparing for a recession.'},
+{w:'inflation',p:'/in\'fleish..n/',z:'n. 通货膨胀',e:'Inflation pushed up costs.'},
+{w:'asset',p:'/\'aeset/',z:'n. 资产',e:'A valuable asset.'},
+{w:'equity',p:'/\'ekw..ti/',z:'n. 股权',e:'Employees receive equity.'},
+{w:'compliance',p:'/k..m\'plai..ns/',z:'n. 合规',e:'Regulatory compliance.'},
+{w:'audit',p:'/\'o:dit/',z:'n. 审计',e:'Annual audit.'},
+{w:'fiscal',p:'/\'fisk..l/',z:'adj. 财政的',e:'Fiscal year.'},
+{w:'dividend',p:'/\'dividend/',z:'n. 股息',e:'Pay dividends.'},
+{w:'portfolio',p:'/po:t\'f..uli..u/',z:'n. 投资组合',e:'A diversified portfolio.'},
+{w:'hedge',p:'/hedzh/',z:'v./n. 对冲',e:'Hedge against risk.'},
+{w:'volatile',p:'/\'vol..tail/',z:'adj. 波动的',e:'A volatile market.'},
+{w:'liquidity',p:'/li\'kwid..ti/',z:'n. 流动性',e:'Market liquidity.'},
+{w:'bear market',p:'/be.. \'ma:kit/',z:'n. 熊市',e:'A bear market.'},
+{w:'bull market',p:'/bul \'ma:kit/',z:'n. 牛市',e:'A bull market.'},
+{w:'IPO',p:'/..aipi:\'..u/',z:'n. 首次公开募股',e:'The company filed for IPO.'},
+{w:'stake',p:'/steik/',z:'n. 股份',e:'A 10% stake.'},
+{w:'angel investor',p:'/\'eindzh..l in\'vest../',z:'n. 天使投资人',e:'An angel investor.'},
+{w:'seed round',p:'/si:d raund/',z:'n. 种子轮',e:'Seed round funding.'},
+{w:'Series A',p:'/\'si..ri:z ei/',z:'n. A轮融资',e:'Series A funding.'},
+{w:'exit',p:'/\'eksit/',z:'n./v. 退出',e:'An exit strategy.'},
+{w:'vesting',p:'/\'vesting/',z:'n. 股权兑现',e:'4-year vesting.'},
+{w:'cliff',p:'/klif/',z:'n. 悬崖期',e:'A 1-year cliff.'},
+{w:'cap table',p:'/kaep \'teibl/',z:'n. 股权结构表',e:'Update the cap table.'},
+{w:'term sheet',p:'/t..:m shi:t/',z:'n. 投资条款清单',e:'Sign the term sheet.'},
+{w:'bootstrapping',p:'/\'bu:tstraeping/',z:'n. 自力更生',e:'Bootstrapping the startup.'},
+{w:'runway',p:'/\'raenwei/',z:'n. 资金跑道',e:'18 months of runway.'},
+{w:'traction',p:'/\'traeksh..n/',z:'n. 增长势头',e:'Early traction.'},
+{w:'MVP',p:'/..emvi:\'pi:/',z:'n. 最小可行产品',e:'Build an MVP.'},
+{w:'iteration',p:'/..it..\'reish..n/',z:'n. 迭代',e:'Rapid iteration.'},
+{w:'retention',p:'/ri\'tensh..n/',z:'n. 留存',e:'User retention.'},
+{w:'acquisition cost',p:'/..aekwi\'zish..n kost/',z:'n. 获客成本',e:'Customer acquisition cost.'},
+{w:'lifetime value',p:'/\'laiftaim \'vaelju:/',z:'n. 生命周期价值',e:'Lifetime value.'},
+{w:'funnel',p:'/\'faen..l/',z:'n. 漏斗',e:'Sales funnel.'},
+{w:'onboarding',p:'/\'onbo:ding/',z:'n. 入职；引导',e:'User onboarding.'},
+{w:'upsell',p:'/\'aepsel/',z:'v. 追加销售',e:'Upsell premium features.'},
+{w:'branding',p:'/\'braending/',z:'n. 品牌建设',e:'Brand identity.'},
+{w:'positioning',p:'/p..\'zish..ning/',z:'n. 定位',e:'Market positioning.'},
+{w:'disrupt',p:'/dis\'raept/',z:'v. 颠覆',e:'Disrupt the industry.'},
+{w:'monetize',p:'/\'maenitaiz/',z:'v. 变现',e:'Monetize the platform.'},
+{w:'freemium',p:'/\'fri:mi..m/',z:'n. 免费增值',e:'Freemium model.'},
+{w:'subscription',p:'/s..b\'skripsh..n/',z:'n. 订阅',e:'Monthly subscription.'},
+{w:'enterprise',p:'/\'ent..praiz/',z:'n. 企业',e:'Enterprise sales.'},
+{w:'SaaS',p:'/saes/',z:'n. 软件即服务',e:'A SaaS product.'},
+{w:'PaaS',p:'/paes/',z:'n. 平台即服务',e:'PaaS offering.'},
+{w:'on-premise',p:'/..on \'premis/',z:'adj. 本地部署',e:'On-premise deployment.'},
+{w:'go-to-market',p:'/..g..utu:\'ma:kit/',z:'n. 上市策略',e:'GTM strategy.'},
+{w:'pipeline',p:'/\'paiplain/',z:'n. 管道',e:'Sales pipeline.'},
+{w:'quota',p:'/\'kw..ut../',z:'n. 配额',e:'Sales quota.'},
+{w:'forecast',p:'/\'fo:ka:st/',z:'n./v. 预测',e:'Revenue forecast.'},
+{w:'board',p:'/bo:d/',z:'n. 董事会',e:'Board meeting.'},
+{w:'executive',p:'/ig\'zekjutiv/',z:'n./adj. 高管',e:'Executive team.'},
+{w:'layoff',p:'/\'leiof/',z:'n./v. 裁员',e:'Company layoffs.'},
+{w:'remote',p:'/ri\'m..ut/',z:'adj. 远程的',e:'Remote work.'},
+{w:'hybrid',p:'/\'haibrid/',z:'adj. 混合的',e:'Hybrid model.'},
+{w:'onboarding',p:'/\'onbo:ding/',z:'n. 入职培训',e:'New hire onboarding.'},
+{w:'efficiency',p:'/i\'fish..nsi/',z:'n. 效率',e:'Operational efficiency.'},
+{w:'overhead',p:'/\'..auv..hed/',z:'n. 间接成本',e:'Reduce overhead.'},
+{w:'outsource',p:'/\'autso:s/',z:'v. 外包',e:'Outsource to cut costs.'},
+{w:'deliverable',p:'/di\'liv..r..bl/',z:'n. 可交付成果',e:'Weekly deliverables.'},
+{w:'stakeholder',p:'/\'steikh..uld../',z:'n. 利益相关方',e:'Key stakeholders.'},
+{w:'liability',p:'/..lai..\'bil..ti/',z:'n. 负债；责任',e:'Legal liability.'},
+{w:'revenue',p:'/\'rev..nju:/',z:'n. 营收',e:'Annual revenue.'},
+{w:'expenditure',p:'/ik\'spenditsh../',z:'n. 支出',e:'Capital expenditure.'},
+];
+W.daily=[
+{w:'hello',p:'/h..\'l..u/',z:'int. 你好',e:'Hello, how are you?'},
+{w:'goodbye',p:'/..gud\'bai/',z:'int. 再见',e:'Goodbye, see you later.'},
+{w:'please',p:'/pli:z/',z:'adv. 请',e:'Please sit down.'},
+{w:'thank you',p:'/\'thaenkh ju:/',z:'谢谢',e:'Thank you very much.'},
+{w:'sorry',p:'/\'sori/',z:'adj. 抱歉',e:'I\'m sorry for the delay.'},
+{w:'excuse me',p:'/ik\'skju:z mi:/',z:'打扰一下',e:'Excuse me, where is the exit?'},
+{w:'yes',p:'/jes/',z:'adv. 是的',e:'Yes, I agree.'},
+{w:'no',p:'/n..u/',z:'adv. 不',e:'No, that\'s not correct.'},
+{w:'maybe',p:'/\'meibi:/',z:'adv. 也许',e:'Maybe we should try again.'},
+{w:'beautiful',p:'/\'bju:tiful/',z:'adj. 美丽的',e:'A beautiful sunset.'},
+{w:'delicious',p:'/di\'lish..s/',z:'adj. 美味的',e:'The food is delicious.'},
+{w:'comfortable',p:'/\'kaemf..t..bl/',z:'adj. 舒适的',e:'A comfortable chair.'},
+{w:'important',p:'/im\'po:t..nt/',z:'adj. 重要的',e:'This is very important.'},
+{w:'interesting',p:'/\'intristing/',z:'adj. 有趣的',e:'An interesting story.'},
+{w:'difficult',p:'/\'difik..lt/',z:'adj. 困难的',e:'A difficult question.'},
+{w:'easy',p:'/\'i:zi/',z:'adj. 容易的',e:'It\'s easy to learn.'},
+{w:'busy',p:'/\'bizi/',z:'adj. 忙碌的',e:'I\'m busy right now.'},
+{w:'tired',p:'/\'tai..d/',z:'adj. 疲倦的',e:'I feel tired today.'},
+{w:'hungry',p:'/\'haenkhgri/',z:'adj. 饥饿的',e:'I\'m very hungry.'},
+{w:'thirsty',p:'/\'th..:sti/',z:'adj. 口渴的',e:'Are you thirsty?'},
+{w:'weather',p:'/\'wedh../',z:'n. 天气',e:'The weather is nice.'},
+{w:'rain',p:'/rein/',z:'n./v. 雨；下雨',e:'It might rain today.'},
+{w:'sunny',p:'/\'saeni/',z:'adj. 晴朗的',e:'A sunny day.'},
+{w:'cloudy',p:'/\'klaudi/',z:'adj. 多云的',e:'Cloudy skies.'},
+{w:'windy',p:'/\'windi/',z:'adj. 有风的',e:'A windy afternoon.'},
+{w:'breakfast',p:'/\'brekf..st/',z:'n. 早餐',e:'Have a good breakfast.'},
+{w:'lunch',p:'/laentsh/',z:'n. 午餐',e:'What\'s for lunch?'},
+{w:'dinner',p:'/\'din../',z:'n. 晚餐',e:'Family dinner time.'},
+{w:'supermarket',p:'/\'su:p..ma:kit/',z:'n. 超市',e:'Go to the supermarket.'},
+{w:'restaurant',p:'/\'rest..ront/',z:'n. 餐厅',e:'A nice restaurant.'},
+{w:'airport',p:'/\'e..po:t/',z:'n. 机场',e:'Arrive at the airport.'},
+{w:'station',p:'/\'steish..n/',z:'n. 车站',e:'Train station.'},
+{w:'hospital',p:'/\'hospitl/',z:'n. 医院',e:'Go to the hospital.'},
+{w:'pharmacy',p:'/\'fa:m..si/',z:'n. 药店',e:'Find a pharmacy.'},
+{w:'bank',p:'/baenkh/',z:'n. 银行',e:'Open a bank account.'},
+{w:'money',p:'/\'maeni/',z:'n. 钱',e:'How much money?'},
+{w:'price',p:'/prais/',z:'n. 价格',e:'What\'s the price?'},
+{w:'expensive',p:'/ik\'spensiv/',z:'adj. 昂贵的',e:'Too expensive.'},
+{w:'cheap',p:'/tshi:p/',z:'adj. 便宜的',e:'A cheap flight.'},
+{w:'free',p:'/fri:/',z:'adj. 免费的',e:'It\'s free.'},
+{w:'discount',p:'/\'diskaunt/',z:'n. 折扣',e:'50% discount.'},
+{w:'size',p:'/saiz/',z:'n. 尺码',e:'What size do you need?'},
+{w:'color',p:'/\'kael../',z:'n. 颜色',e:'What color do you like?'},
+{w:'direction',p:'/di\'reksh..n/',z:'n. 方向',e:'Which direction?'},
+{w:'left',p:'/left/',z:'n./adj. 左边',e:'Turn left.'},
+{w:'right',p:'/rait/',z:'n./adj. 右边',e:'Turn right.'},
+{w:'straight',p:'/streit/',z:'adv. 直的',e:'Go straight ahead.'},
+{w:'near',p:'/ni../',z:'adj./adv. 近的',e:'Is it near here?'},
+{w:'far',p:'/fa:/',z:'adj./adv. 远的',e:'How far is it?'},
+{w:'minute',p:'/\'minit/',z:'n. 分钟',e:'Wait a minute.'},
+];
 
 // ==================== 分类结构 ====================
 var CAT_GROUPS=[
   {id:'g1',icon:'📚',name:'初中英语',open:true,sub:[
-    {key:'grade7',name:'初一',desc:'七年级课标基础词汇 (81词)'},
-    {key:'grade8',name:'初二',desc:'八年级课标进阶词汇 (73词)'},
-    {key:'grade9',name:'初三',desc:'九年级课标核心词汇 (69词)'}
+    {key:'grade7',name:'初一',desc:'课标基础词汇 ('+W.grade7.length+'词)'},
+    {key:'grade8',name:'初二',desc:'课标进阶词汇 ('+W.grade8.length+'词)'},
+    {key:'grade9',name:'初三',desc:'课标核心词汇 ('+W.grade9.length+'词)'}
   ]},
   {id:'g2',icon:'📖',name:'高中英语',open:false,sub:[
-    {key:'grade10',name:'高一',desc:'衔接拓展词汇 (70词)'},
-    {key:'grade11',name:'高二',desc:'深度拓展词汇 (60词)'},
-    {key:'grade12',name:'高三',desc:'高考核心词汇 (60词)'}
+    {key:'grade10',name:'高一',desc:'衔接拓展词汇 ('+W.grade10.length+'词)'},
+    {key:'grade11',name:'高二',desc:'深度拓展词汇 ('+W.grade11.length+'词)'},
+    {key:'grade12',name:'高三',desc:'高考核心词汇 ('+W.grade12.length+'词)'}
   ]},
   {id:'g3',icon:'💼',name:'专业领域',open:false,sub:[
-    {key:'ai',name:'AI 科技',desc:'机器学习、人工智能术语 (50词)'},
-    {key:'business',name:'投资商业',desc:'职场、金融、管理词汇 (50词)'},
-    {key:'daily',name:'日常常用',desc:'情绪、性格、生活高频词 (50词)'}
+    {key:'ai',name:'AI 科技',desc:'大模型、编程、工具术语 ('+W.ai.length+'词)'},
+    {key:'business',name:'投资商业',desc:'职场、金融、管理词汇 ('+W.business.length+'词)'},
+    {key:'daily',name:'日常常用',desc:'高频生活词汇 ('+W.daily.length+'词)'}
   ]}
 ];
 
 // ==================== 用户系统 ====================
-var USER_KEY='vw_users',CUR_KEY='vw_current';
-function getUsers(){try{var d=localStorage.getItem(USER_KEY);return d?JSON.parse(d):[];}catch(e){return[];}}
-function saveUsers(users){localStorage.setItem(USER_KEY,JSON.stringify(users));}
-function getCurrentUser(){return localStorage.getItem(CUR_KEY);}
+var USER_KEY='vw_users_v2',ACTIVE_USER_KEY='vw_active_user';
+function loadUsers(){try{var r=localStorage.getItem(USER_KEY);return r?JSON.parse(r):{};}catch(e){return{};}}
+function saveUsers(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
+function getActiveUser(){return localStorage.getItem(ACTIVE_USER_KEY)||'';}
+function setActiveUser(n){localStorage.setItem(ACTIVE_USER_KEY,n);}
 
-function userStateKey(name){return 'vw_'+name;}
-
-function loadUserData(name){
-  var key=userStateKey(name);
-  try{var d=localStorage.getItem(key);return d?JSON.parse(d):mkDefaultState();}catch(e){return mkDefaultState();}
-}
-function saveUserData(name,st){localStorage.setItem(userStateKey(name),JSON.stringify(st));}
-function mkDefaultState(){return{range:'grade7',count:3,learnedDays:{}};}
-
-// ==================== 全局状态 ====================
-var currentUser=null,state=null,words=[],learned=[];
-
-// ==================== 初始化 ====================
-function init(){
-  var cu=getCurrentUser();
-  if(cu){
-    var users=getUsers();
-    var found=users.find(function(u){return u.name===cu;});
-    if(found){loginAs(cu);return;}
-  }
-  // 无当前用户或当前用户被删除
-  var users=getUsers();
-  if(users.length===1){
-    // 只有一个用户，自动登录
-    loginAs(users[0].name);
-  }else{
-    showLogin();
-  }
+function hashPass(pw){
+  var h=0;for(var i=0;i<pw.length;i++){h=((h<<5)-h)+pw.charCodeAt(i);h|=0;}
+  return 'V'+Math.abs(h).toString(36);
 }
 
-function loginAs(name){
-  currentUser=name;
-  localStorage.setItem(CUR_KEY,name);
-  state=loadUserData(name);
-  document.getElementById('loginPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
-  var btn=document.getElementById('avatarBtn');
-  btn.textContent=name.charAt(0).toUpperCase();
-  btn.className='avatar-btn avatar-'+['coral','purple','teal'][hashCode(name)%3];
-  initWords();render();
+function loginUser(name,pw){
+  if(!name||!pw)return showToast('请输入名字和密码');
+  var users=loadUsers();
+  if(!users[name])return showToast('用户不存在，请先创建');
+  if(users[name].pw!==hashPass(pw))return showToast('密码错误');
+  setActiveUser(name);
+  checkUserFlow();
+  showToast('欢迎回来，'+name+' 👋');
 }
 
-function showLogin(){
-  document.getElementById('mainPage').classList.add('hidden');
-  document.getElementById('loginPage').classList.remove('hidden');
-  var users=getUsers(),list=document.getElementById('userList'),html='';
-  users.forEach(function(u,i){
-    var days=Object.keys(loadUserData(u.name).learnedDays).length;
-    var avc=['avatar-coral','avatar-purple','avatar-teal'][i%3];
-    html+='<div class="user-card" onclick="loginAs(\''+esc(u.name)+'\')">'+
-      '<div class="user-avatar '+avc+'">'+u.name.charAt(0).toUpperCase()+'</div>'+
-      '<div class="user-info"><div class="user-name">'+escHtml(u.name)+'</div>'+
-      '<div class="user-meta">已学 '+days+' 天</div></div>'+
-      '<div class="user-badge">进入</div></div>';
-  });
-  list.innerHTML=html||'<div style="text-align:center;color:var(--muted);padding:20px">还没有用户，点击下方创建</div>';
-}
-
-function hashCode(s){for(var i=0,h=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return Math.abs(h);}
-function esc(s){return s.replace(/\\/g,'\\\\').replace(/'/g,'\\\'').replace(/"/g,'\\"');}
-function escHtml(s){var d={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'};return s.replace(/[&<>"']/g,function(c){return d[c];});}
-
-// ==================== 用户管理面板 ====================
-function showUserPanel(){
-  var users=getUsers(),html='';
-  users.forEach(function(u,i){
-    var days=Object.keys(loadUserData(u.name).learnedDays).length;
-    var avc=['avatar-coral','avatar-purple','avatar-teal'][i%3];
-    var active=currentUser===u.name?' active':'';
-    html+='<div class="user-panel-item'+active+'">'+
-      '<div class="up-avatar '+avc+'">'+u.name.charAt(0).toUpperCase()+'</div>'+
-      '<div class="up-info"><div class="up-name">'+escHtml(u.name)+(active?' (当前)':'')+'</div>'+
-      '<div class="up-desc">已学 '+days+' 天</div></div>'+
-      '<div class="up-actions">'+
-      (active?'':'<button class="up-btn up-btn-enter" onclick="switchTo(\''+esc(u.name)+'\')">切换</button>')+
-      '<button class="up-btn up-btn-del" onclick="confirmDel(\''+esc(u.name)+'\')">删除</button></div></div>';
-  });
-  document.getElementById('userPanelList').innerHTML=html;
-  document.getElementById('userOverlay').classList.remove('hidden');
-}
-function switchTo(name){
-  hidePanel('userOverlay');
-  loginAs(name);
-  showToast('已切换到 '+name);
-}
-var delTarget=null;
-function confirmDel(name){
-  delTarget=name;
-  document.getElementById('delTarget').textContent=name;
-  document.getElementById('delPwd').value='';
-  document.getElementById('delErr').classList.add('hidden');
-  document.getElementById('delDialog').classList.remove('hidden');
-}
-function doDelete(){
-  var pwd=document.getElementById('delPwd').value.trim();
-  var users=getUsers();
-  var u=users.find(function(x){return x.name===delTarget;});
-  if(!u||u.pwd!==pwd){
-    document.getElementById('delErr').textContent='密码错误';
-    document.getElementById('delErr').classList.remove('hidden');
-    return;
-  }
-  localStorage.removeItem(userStateKey(delTarget));
-  users=users.filter(function(x){return x.name!==delTarget;});
+function createUser(name,pw){
+  if(!name||!pw)return showToast('请输入名字和密码');
+  if(name.length>20)return showToast('名字太长，20字以内');
+  var users=loadUsers();
+  if(users[name])return showToast('该名字已存在');
+  users[name]={pw:hashPass(pw),state:{range:'grade7',count:3,learnedDays:{}}};
   saveUsers(users);
-  hideDialog('delDialog');
-  hidePanel('userOverlay');
-  if(currentUser===delTarget){
-    currentUser=null;state=null;
-    localStorage.removeItem(CUR_KEY);
-    init();
-  }
-  showToast('已删除 '+delTarget);
+  setActiveUser(name);
+  checkUserFlow();
+  showToast('创建成功，欢迎 '+name+' 🎉');
 }
 
-// ==================== 创建用户 ====================
-function showCreate(){
-  document.getElementById('newName').value='';
-  document.getElementById('newPwd').value='';
-  document.getElementById('createErr').classList.add('hidden');
-  document.getElementById('createDialog').classList.remove('hidden');
-  setTimeout(function(){document.getElementById('newName').focus();},100);
-}
-function doCreate(){
-  var name=document.getElementById('newName').value.trim();
-  var pwd=document.getElementById('newPwd').value.trim();
-  var e=document.getElementById('createErr');
-  if(!name){e.textContent='请输入名字';e.classList.remove('hidden');return;}
-  if(name.length>10){e.textContent='名字最多10个字';e.classList.remove('hidden');return;}
-  if(pwd.length<2){e.textContent='密码至少2位';e.classList.remove('hidden');return;}
-  if(pwd.length>20){e.textContent='密码最多20位';e.classList.remove('hidden');return;}
-  var users=getUsers();
-  if(users.find(function(u){return u.name===name;})){
-    e.textContent='这个名字已被使用';e.classList.remove('hidden');return;
-  }
-  if(users.length>=10){e.textContent='最多10个用户';e.classList.remove('hidden');return;}
-  users.push({name:name,pwd:pwd});
-  saveUsers(users);
-  hideDialog('createDialog');
-  loginAs(name);
-  showToast('欢迎，'+name+'!');
+function deleteUser(name){
+  var users=loadUsers();
+  delete users[name];saveUsers(users);
+  if(getActiveUser()===name)setActiveUser('');
+  showToast('已删除用户：'+name);
 }
 
-function hideDialog(id){delTarget=null;document.getElementById(id).classList.add('hidden');}
-function hidePanel(id){document.getElementById(id).classList.add('hidden');}
-
-// ==================== 单词逻辑 ====================
-function save(){if(currentUser&&state)saveUserData(currentUser,state);}
+function getState(){
+  var au=getActiveUser();if(!au)return null;
+  var users=loadUsers();if(!users[au])return null;
+  if(!users[au].state)users[au].state={range:'grade7',count:3,learnedDays:{}};
+  return users[au].state;
+}
+function saveState(st){
+  var au=getActiveUser();if(!au)return;
+  var users=loadUsers();if(!users[au])return;
+  users[au].state=st;saveUsers(users);
+}
 function td(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function shuf(a){var s=a.slice();for(var i=s.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=s[i];s[i]=s[j];s[j]=t;}return s;}
+
 function pick(){
-  var today=td(),bank=W[state.range]||W.grade7;
-  var seed=today+'-'+state.range,hash=0;
+  var st=getState();if(!st)return[];
+  var bank=W[st.range]||W.grade7;
+  var today=td(),seed=today+'-'+st.range,hash=0;
   for(var i=0;i<seed.length;i++){hash=((hash<<5)-hash)+seed.charCodeAt(i);hash|=0;}
   hash=Math.abs(hash);
-  var pool=shuf(bank),start=hash%Math.max(1,pool.length-state.count);
-  return pool.slice(start,start+state.count);
-}
-function initWords(){
-  if(!state)state=mkDefaultState();
-  words=pick();learned=[];
-  var today=td();
-  if(!state.learnedDays[today]){state.learnedDays[today]=true;save();}
+  var pool=shuf(bank),start=hash%Math.max(1,pool.length-st.count);
+  return pool.slice(start,start+st.count);
 }
 
+var words=[],learned=[];
+
+function initWords(){
+  var st=getState();if(!st)return;
+  words=pick();learned=[];
+  var today=td();
+  if(!st.learnedDays[today]){st.learnedDays[today]=true;saveState(st);}
+}
+
+// ==================== 渲染 ====================
 function render(){
-  var list=document.getElementById('wordList');
-  list.innerHTML='';
+  var list=document.getElementById('wordList');list.innerHTML='';
   words.forEach(function(item,i){
-    var l=learned.indexOf(i)!==-1;
     var card=document.createElement('div');
-    card.className='word-card'+(l?' learned':'');
-    card.style.animationDelay=(i*0.07)+'s';
+    card.className='word-card';card.style.animationDelay=(i*0.07)+'s';
     card.innerHTML='<div class="word-main">'+H(item.w)+'</div>'+
       '<div class="word-phonetic">'+H(item.p)+'</div>'+
       '<div class="word-zh">'+H(item.z)+'</div>'+
       '<div class="word-example">'+H(item.e)+'</div>'+
-      '<div class="word-speaker" onclick="event.stopPropagation();spk(\''+item.w.replace(/'/g,'\\\'')+'\',this.closest(\'.word-card\'))">🔊</div>'+
-      (l?'<div style="position:absolute;top:8px;right:52px;font-size:12px;opacity:0.5">✅</div>':'');
+      '<div class="word-speaker" onclick="event.stopPropagation();spk(\''+item.w.replace(/'/g,"\\'")+'\',this.closest(\'.word-card\'))">🔊</div>';
     card.addEventListener('click',function(){onCard(i,card);});
     list.appendChild(card);
   });
   updateProg();
 }
 function updateProg(){
+  var st=getState();if(!st)return;
   var n=learned.length;
-  document.getElementById('progText').textContent=n+' / '+state.count;
-  document.getElementById('progBar').style.width=state.count>0?(n/state.count*100)+'%':'0%';
+  document.getElementById('progText').textContent=n+' / '+st.count;
+  document.getElementById('progBar').style.width=st.count>0?(n/st.count*100)+'%':'0%';
 }
-function onCard(idx,el){spk(words[idx].w,el);if(learned.indexOf(idx)===-1){learned.push(idx);render();}}
+function onCard(idx,el){
+  spk(words[idx].w,el);
+  if(learned.indexOf(idx)===-1){learned.push(idx);render();}
+}
 function H(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
+// ==================== 发音 ====================
 function spk(word,el){
   if(!window.speechSynthesis){showToast('浏览器不支持发音');return;}
   speechSynthesis.cancel();
@@ -574,9 +1079,10 @@ function speakAll(){
 }
 
 // ==================== 设置面板 ====================
-var curRange=null;
+var curRange='';
 function openSettings(){
-  curRange=state.range;
+  var st=getState();if(!st)return;
+  curRange=st.range;
   var cg=document.getElementById('catGroups'),html='';
   CAT_GROUPS.forEach(function(g){
     var open=g.open?' open':'';
@@ -591,7 +1097,7 @@ function openSettings(){
   });
   cg.innerHTML=html;
   var co=document.getElementById('countOpts'),ch='';
-  for(var n=3;n<=8;n++){ch+='<div class="count-btn'+(state.count===n?' selected':'')+'" data-n="'+n+'" onclick="selectCount(this)">'+n+'</div>';}
+  for(var n=3;n<=8;n++){ch+='<div class="count-btn'+(st.count===n?' selected':'')+'" data-n="'+n+'" onclick="selectCount(this)">'+n+'</div>';}
   co.innerHTML=ch;
   document.getElementById('settingsOverlay').classList.remove('hidden');
 }
@@ -603,25 +1109,28 @@ function selectCat(el,gid){
   el.classList.add('selected');
 }
 function selectCount(el){
-  state.count=parseInt(el.dataset.n);
+  var n=parseInt(el.dataset.n);
   document.querySelectorAll('#countOpts .count-btn').forEach(function(b){b.classList.remove('selected');});
   el.classList.add('selected');
 }
 function saveAndClose(){
-  state.range=curRange;save();initWords();render();
+  var st=getState();if(!st)return;
+  st.range=curRange;saveState(st);initWords();render();
   document.getElementById('settingsOverlay').classList.add('hidden');
-  showToast('已更新词库');
+  showToast('已更新词库 ✨');
 }
+function closePanel(e,id){if(!e||e.target===document.getElementById(id)){document.getElementById(id).classList.add('hidden');}}
 
 // ==================== 统计 ====================
 function openStats(){
-  var today=td(),keys=Object.keys(state.learnedDays),total=keys.length,totalWords=total*state.count;
+  var st=getState();if(!st)return;
+  var today=td(),keys=Object.keys(st.learnedDays),total=keys.length,totalWords=total*st.count;
   var streak=0,todayDate=new Date();
-  for(var i=0;i<365;i++){var d=new Date(todayDate);d.setDate(d.getDate()-i);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(state.learnedDays[k])streak++;else if(i>0)break;}
+  for(var i=0;i<365;i++){var d=new Date(todayDate);d.setDate(d.getDate()-i);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(st.learnedDays[k])streak++;else if(i>0)break;}
   document.getElementById('statDays').textContent=total;
   document.getElementById('statWords').textContent=totalWords;
   document.getElementById('statStreak').textContent=streak;
-  var cn='--';CAT_GROUPS.forEach(function(g){g.sub.forEach(function(s){if(s.key===state.range)cn=s.name;});});
+  var cn='--';CAT_GROUPS.forEach(function(g){g.sub.forEach(function(s){if(s.key===st.range)cn=s.name;});});
   document.getElementById('statCat').textContent=cn;
   var em=document.getElementById('streakEmoji'),msg=document.getElementById('streakMsg');
   if(streak===0){em.textContent='😴';msg.textContent='今天还没开始学习哦';}
@@ -631,11 +1140,67 @@ function openStats(){
   document.getElementById('statsOverlay').classList.remove('hidden');
 }
 
-function refreshWords(){initWords();render();showToast('已刷新');}
+// ==================== 用户面板 ====================
+function openUserPanel(){
+  var au=getActiveUser();
+  var panel=document.getElementById('userPanel');
+  if(au){
+    panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
+      '<button class="user-act-btn" onclick="switchToUser()">🔄 切换用户</button>'+
+      '<button class="user-act-btn del" onclick="if(confirm(\'确定要删除 \'+au+'\' 吗？此操作不可恢复。\')){deleteUser(\''+au.replace(/'/g,"\\'")+'\');openUserPanel();if(!getActiveUser())checkUserFlow();}">🗑 删除此用户</button>';
+  } else {
+    panel.innerHTML='<div class="user-card-name" style="color:var(--muted)">未登录</div>';
+  }
+  document.getElementById('userOverlay').classList.remove('hidden');
+}
+function switchToUser(){
+  var users=loadUsers(),names=Object.keys(users);
+  var html='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">已有用户，点击即可切换：</div>';
+  names.forEach(function(n){html+='<div class="user-switch-item" onclick="setActiveUser(\''+n.replace(/'/g,"\\'")+'\');loginQuick()">👤 '+H(n)+'</div>';});
+  html+='<div class="user-switch-item new" onclick="showLoginForm()">➕ 新建用户</div>';
+  var panel=document.getElementById('userPanel');
+  panel.innerHTML=html;
+}
+function loginQuick(){
+  checkUserFlow();showToast('已切换');
+  document.getElementById('userOverlay').classList.add('hidden');
+}
+function showLoginForm(){
+  var panel=document.getElementById('userPanel');
+  panel.innerHTML='<div class="login-form"><input class="login-input" id="loginName" placeholder="输入名字"><input class="login-input" id="loginPw" type="password" placeholder="输入密码"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary" style="flex:1" onclick="var n=document.getElementById(\'loginName\').value.trim(),p=document.getElementById(\'loginPw\').value;if(!n)return showToast(\'请输入名字\');var users=loadUsers();if(users[n]){loginUser(n,p);document.getElementById(\'userOverlay\').classList.add(\'hidden\');}else{createUser(n,p);document.getElementById(\'userOverlay\').classList.add(\'hidden\');}">确认</button><button class="btn btn-secondary" style="flex:1" onclick="switchToUser()">返回</button></div></div>';
+}
+
+// ==================== 用户流程 ====================
+function checkUserFlow(){
+  var au=getActiveUser();
+  if(au){
+    var users=loadUsers();
+    if(users[au]){
+      var nd=document.getElementById('userNameDisplay');
+      nd.textContent=au;nd.style.display='';
+      var ph=document.getElementById('userPlaceholder');if(ph)ph.style.display='none';
+      initWords();render();
+      return;
+    }
+  }
+  var nd=document.getElementById('userNameDisplay');if(nd)nd.style.display='none';
+  var ph=document.getElementById('userPlaceholder');if(ph)ph.style.display='';
+  words=[];document.getElementById('wordList').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">请先创建或选择用户</div>';
+  document.getElementById('progText').textContent='0 / 0';
+  document.getElementById('progBar').style.width='0%';
+  openUserPanel();
+}
+
+// ==================== 工具 ====================
+function refreshWords(){initWords();render();showToast('已刷新 ✨');}
 function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('show');},1800);}
 
-if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}
-init();
+// ==================== 初始化 ====================
+(function init(){
+  if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}
+  checkUserFlow();
+  if(!localStorage.getItem('vw_guide')){setTimeout(function(){document.getElementById('guideOverlay').classList.remove('hidden');},500);}
+})();
 </script>
 </body>
 </html>
