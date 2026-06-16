@@ -166,7 +166,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <div class="panel-handle"></div>
 <h3>用户</h3>
 <div id="userPanel"></div>
-<div style="margin-top:8px"><button class="btn btn-secondary" style="width:100%" onclick="showLoginForm()">+ 创建新用户</button></div>
 </div>
 </div>
 
@@ -1148,8 +1147,10 @@ function openUserPanel(){
     panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
       '<button class="user-act-btn" onclick="switchToUser()">🔄 切换用户</button>'+
       '<button class="user-act-btn del" onclick="if(confirm(\'确定要删除 \'+au+'\' 吗？此操作不可恢复。\')){deleteUser(\''+au.replace(/'/g,"\\'")+'\');openUserPanel();if(!getActiveUser())checkUserFlow();}">🗑 删除此用户</button>';
+  } else if(Object.keys(loadUsers()).length===0){
+    showLoginForm();
   } else {
-    panel.innerHTML='<div class="user-card-name" style="color:var(--muted)">未登录</div>';
+    switchToUser();
   }
   document.getElementById('userOverlay').classList.remove('hidden');
 }
