@@ -106,7 +106,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 <div class="top-bar">
 <span class="logo">每日单词</span>
 <div class="user-area">
-<button class="user-btn" onclick="openUserPanel()">
+<button class="user-btn" id="userBtn">
 <span class="avatar" id="userAvatar">?</span>
 <span id="userNameDisplay" style="display:none"></span><span id="userPlaceholder">点击登录</span>
 </button>
@@ -1141,68 +1141,67 @@ function openStats(){
 
 // ==================== 用户面板 ====================
 function openUserPanel(){
-  try{
-    var au=getActiveUser();
-    var panel=document.getElementById('userPanel');
-    if(au){
-      panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
-        '<button class="user-act-btn" id="switchUserBtn">🔄 切换用户</button>'+
-        '<button class="user-act-btn del" id="deleteUserBtn">🗑 删除此用户</button>';
-      document.getElementById('switchUserBtn').onclick=switchToUser;
-      document.getElementById('deleteUserBtn').onclick=function(){
-        if(confirm('确定要删除 '+au+' 吗？此操作不可恢复。')){
-          deleteUser(au);openUserPanel();if(!getActiveUser())checkUserFlow();
-        }
-      };
-    } else if(Object.keys(loadUsers()).length===0){
-      showLoginForm();
-    } else {
-      switchToUser();
-    }
-    document.getElementById('userOverlay').classList.remove('hidden');
-  }catch(e){
-    showToast('出错：'+e.message);
-  }
-}
-function switchToUser(){
-  var users=loadUsers(),names=Object.keys(users);
-  var html='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">已有用户，点击即可切换：</div>';
-  for(var i=0;i<names.length;i++){
-    html+='<div class="user-switch-item" data-name="'+H(names[i])+'">👤 '+H(names[i])+'</div>';
-  }
-  html+='<div class="user-switch-item new" id="newUserBtn">➕ 新建用户</div>';
+  var au=getActiveUser();
   var panel=document.getElementById('userPanel');
-  panel.innerHTML=html;
-  var items=panel.querySelectorAll('.user-switch-item:not(.new)');
-  for(var j=0;j<items.length;j++){
-    items[j].onclick=(function(name){return function(){setActiveUser(name);loginQuick();};})(names[j]);
+  if(au){
+    // 已登录：显示用户卡片
+    panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
+      '<button class="user-act-btn" id="switchUserBtn">🔄 切换用户</button>'+
+      '<button class="user-act-btn del" id="deleteUserBtn">🗑 删除此用户</button>';
+    document.getElementById('switchUserBtn').onclick=function(){showUserList();};
+    document.getElementById('deleteUserBtn').onclick=function(){
+      if(confirm('确定要删除 '+au+' 吗？此操作不可恢复。')){
+        deleteUser(au);openUserPanel();checkUserFlow();
+      }
+    };
+  } else if(Object.keys(loadUsers()).length===0){
+    // 无任何用户：显示注册
+    showRegisterForm();
+  } else {
+    // 有用户但未登录：显示用户列表
+    showUserList();
   }
-  document.getElementById('newUserBtn').onclick=showLoginForm;
+  document.getElementById('userOverlay').classList.remove('hidden');
 }
-function loginQuick(){
-  checkUserFlow();showToast('已切换');
-  document.getElementById('userOverlay').classList.add('hidden');
-}
-function showLoginForm(){
+
+function showRegisterForm(){
   var panel=document.getElementById('userPanel');
-  panel.innerHTML='<div class="login-form">'+
-    '<input class="login-input" id="loginName" placeholder="输入名字">'+
-    '<input class="login-input" id="loginPw" type="password" placeholder="输入密码">'+
-    '<div style="display:flex;gap:8px;margin-top:10px">'+
-    '<button class="btn btn-primary" style="flex:1" id="loginConfirmBtn">确认</button>'+
-    '<button class="btn btn-secondary" style="flex:1" id="loginBackBtn">返回</button>'+
-    '</div></div>';
-  document.getElementById('loginConfirmBtn').onclick=doLogin;
-  document.getElementById('loginBackBtn').onclick=switchToUser;
+  panel.innerHTML='<div style="font-size:14px;color:var(--muted);margin-bottom:8px">首次使用，创建账户</div>'+
+    '<input class="login-input" id="regName" placeholder="输入你的名字">'+
+    '<input class="login-input" id="regPw" type="password" placeholder="设置密码（可选）">'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:10px" id="regConfirmBtn">创建账户</button>';
+  document.getElementById('regConfirmBtn').onclick=doRegister;
 }
-function doLogin(){
-  var n=document.getElementById('loginName').value.trim();
-  var p=document.getElementById('loginPw').value;
+
+function doRegister(){
+  var n=document.getElementById('regName').value.trim();
+  var p=document.getElementById('regPw').value;
   if(!n){showToast('请输入名字');return;}
   var users=loadUsers();
-  if(users[n]){loginUser(n,p);}
-  else{createUser(n,p);}
+  if(users[n]){showToast('该名字已存在，请换一个');return;}
+  createUser(n,p);
   document.getElementById('userOverlay').classList.add('hidden');
+  checkUserFlow();
+}
+
+function showUserList(){
+  var users=loadUsers(),names=Object.keys(users);
+  var panel=document.getElementById('userPanel');
+  var html='<div style="font-size:14px;color:var(--muted);margin-bottom:8px">选择用户登录</div>';
+  for(var i=0;i<names.length;i++){
+    html+='<div class="user-switch-item" id="usr_'+i+'">👤 '+H(names[i])+'</div>';
+  }
+  html+='<div class="user-switch-item new" id="newUserBtn">➕ 创建新用户</div>';
+  panel.innerHTML=html;
+  for(var j=0;j<names.length;j++){
+    (function(nm){
+      document.getElementById('usr_'+j).onclick=function(){
+        setActiveUser(nm);checkUserFlow();showToast('已登录');
+        document.getElementById('userOverlay').classList.add('hidden');
+      };
+    })(names[j]);
+  }
+  document.getElementById('newUserBtn').onclick=showRegisterForm;
 }
 
 // ==================== 用户流程 ====================
@@ -1232,6 +1231,7 @@ function showToast(msg){var t=document.getElementById('toast');t.textContent=msg
 // ==================== 初始化 ====================
 (function init(){
   if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};}
+  document.getElementById('userBtn').addEventListener('click',openUserPanel);
   checkUserFlow();
   if(!localStorage.getItem('vw_guide')){setTimeout(function(){document.getElementById('guideOverlay').classList.remove('hidden');},500);}
 })();
