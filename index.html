@@ -14,7 +14,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:-webkit-fill-available;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;padding-bottom:env(safe-area-inset-bottom,20px)}
 .container{max-width:430px;margin:0 auto;padding:16px 16px 40px}
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid #eee;margin-bottom:12px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 12px;border-bottom:1px solid #eee;margin-bottom:12px;position:relative;z-index:250}
 .logo{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
 .user-area{display:flex;align-items:center;gap:6px}
 .user-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:20px;border:1.5px solid #E4E6EE;background:#FFF;color:var(--sub);font-size:13px;font-weight:500;cursor:pointer;transition:0.15s}
@@ -1141,18 +1141,22 @@ function openStats(){
 
 // ==================== 用户面板 ====================
 function openUserPanel(){
-  var au=getActiveUser();
-  var panel=document.getElementById('userPanel');
-  if(au){
-    panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
-      '<button class="user-act-btn" onclick="switchToUser()">🔄 切换用户</button>'+
-      '<button class="user-act-btn del" onclick="if(confirm(\'确定要删除 \'+au+'\' 吗？此操作不可恢复。\')){deleteUser(\''+au.replace(/'/g,"\\'")+'\');openUserPanel();if(!getActiveUser())checkUserFlow();}">🗑 删除此用户</button>';
-  } else if(Object.keys(loadUsers()).length===0){
-    showLoginForm();
-  } else {
-    switchToUser();
+  try{
+    var au=getActiveUser();
+    var panel=document.getElementById('userPanel');
+    if(au){
+      panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
+        '<button class="user-act-btn" onclick="switchToUser()">🔄 切换用户</button>'+
+        '<button class="user-act-btn del" onclick="if(confirm(\'确定要删除 \'+au+'\' 吗？此操作不可恢复。\')){deleteUser(\''+au.replace(/'/g,"\\'")+'\');openUserPanel();if(!getActiveUser())checkUserFlow();}">🗑 删除此用户</button>';
+    } else if(Object.keys(loadUsers()).length===0){
+      showLoginForm();
+    } else {
+      switchToUser();
+    }
+    document.getElementById('userOverlay').classList.remove('hidden');
+  }catch(e){
+    showToast('出错：'+e.message);
   }
-  document.getElementById('userOverlay').classList.remove('hidden');
 }
 function switchToUser(){
   var users=loadUsers(),names=Object.keys(users);
