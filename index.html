@@ -979,7 +979,7 @@ function createUser(name,pw){
   if(name.length>20)return showToast('名字太长，20字以内');
   var users=loadUsers();
   if(users[name])return showToast('该名字已存在');
-  users[name]={pw:hashPass(pw),state:{range:'grade7',count:3,learnedDays:{}}};
+  users[name]={pw:hashPass(pw),state:{range:'grade7',count:3,learnedDays:{},learnedWords:{},todayLearned:[]}};
   saveUsers(users);
   setActiveUser(name);
   checkUserFlow();
@@ -996,7 +996,9 @@ function deleteUser(name){
 function getState(){
   var au=getActiveUser();if(!au)return null;
   var users=loadUsers();if(!users[au])return null;
-  if(!users[au].state)users[au].state={range:'grade7',count:3,learnedDays:{}};
+  if(!users[au].state)users[au].state={range:'grade7',count:3,learnedDays:{},learnedWords:{},todayLearned:[]};
+  if(!users[au].state.learnedWords)users[au].state.learnedWords={};
+  if(!users[au].state.todayLearned)users[au].state.todayLearned=[];
   return users[au].state;
 }
 function saveState(st){
@@ -1017,13 +1019,19 @@ function pick(){
   return pool.slice(start,start+st.count);
 }
 
-var words=[],learned=[];
+var words=[],learned={};
 
 function initWords(){
   var st=getState();if(!st)return;
-  words=pick();learned=[];
+  words=pick();learned={};
   var today=td();
-  if(!st.learnedDays[today]){st.learnedDays[today]=true;saveState(st);}
+  if(st.learnedDays[today]){
+    if(st.todayLearned)st.todayLearned.forEach(function(w){learned[w]=true;});
+  } else {
+    st.learnedDays[today]=true;
+    st.todayLearned=[];
+    saveState(st);
+  }
 }
 
 // ==================== 渲染 ====================
@@ -1031,7 +1039,9 @@ function render(){
   var list=document.getElementById('wordList');list.innerHTML='';
   words.forEach(function(item,i){
     var card=document.createElement('div');
-    card.className='word-card';card.style.animationDelay=(i*0.07)+'s';
+    var isLearned=learned[item.w];
+    card.className='word-card'+(isLearned?' learned':'');
+    card.style.animationDelay=(i*0.07)+'s';
     card.innerHTML='<div class="word-main">'+H(item.w)+'</div>'+
       '<div class="word-phonetic">'+H(item.p)+'</div>'+
       '<div class="word-zh">'+H(item.z)+'</div>'+
@@ -1044,13 +1054,21 @@ function render(){
 }
 function updateProg(){
   var st=getState();if(!st)return;
-  var n=learned.length;
+  var n=Object.keys(learned).length;
   document.getElementById('progText').textContent=n+' / '+st.count;
   document.getElementById('progBar').style.width=st.count>0?(n/st.count*100)+'%':'0%';
 }
 function onCard(idx,el){
   spk(words[idx].w,el);
-  if(learned.indexOf(idx)===-1){learned.push(idx);render();}
+  if(!learned[words[idx].w]){
+    learned[words[idx].w]=true;
+    var st=getState();
+    st.todayLearned=Object.keys(learned);
+    if(!st.learnedWords)st.learnedWords={};
+    st.learnedWords[words[idx].w]=true;
+    saveState(st);
+    render();
+  }
 }
 function H(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
@@ -1117,6 +1135,7 @@ function selectCount(el){
 }
 function saveAndClose(){
   var st=getState();if(!st)return;
+  if(st.range!==curRange){st.todayLearned=[];}
   st.range=curRange;
   if(curCount!==null)st.count=curCount;
   saveState(st);initWords();render();
@@ -1128,7 +1147,7 @@ function closePanel(e,id){if(!e||e.target===document.getElementById(id)){documen
 // ==================== 统计 ====================
 function openStats(){
   var st=getState();if(!st)return;
-  var today=td(),keys=Object.keys(st.learnedDays),total=keys.length,totalWords=total*st.count;
+  var today=td(),keys=Object.keys(st.learnedDays),total=keys.length,totalWords=Object.keys(st.learnedWords||{}).length;
   var streak=0,todayDate=new Date();
   for(var i=0;i<365;i++){var d=new Date(todayDate);d.setDate(d.getDate()-i);var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(st.learnedDays[k])streak++;else if(i>0)break;}
   document.getElementById('statDays').textContent=total;
