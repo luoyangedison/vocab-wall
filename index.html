@@ -1146,8 +1146,14 @@ function openUserPanel(){
     var panel=document.getElementById('userPanel');
     if(au){
       panel.innerHTML='<div class="user-card-name">👤 '+H(au)+'</div>'+
-        '<button class="user-act-btn" onclick="switchToUser()">🔄 切换用户</button>'+
-        '<button class="user-act-btn del" onclick="if(confirm(\'确定要删除 \'+au+'\' 吗？此操作不可恢复。\')){deleteUser(\''+au.replace(/'/g,"\\'")+'\');openUserPanel();if(!getActiveUser())checkUserFlow();}">🗑 删除此用户</button>';
+        '<button class="user-act-btn" id="switchUserBtn">🔄 切换用户</button>'+
+        '<button class="user-act-btn del" id="deleteUserBtn">🗑 删除此用户</button>';
+      document.getElementById('switchUserBtn').onclick=switchToUser;
+      document.getElementById('deleteUserBtn').onclick=function(){
+        if(confirm('确定要删除 '+au+' 吗？此操作不可恢复。')){
+          deleteUser(au);openUserPanel();if(!getActiveUser())checkUserFlow();
+        }
+      };
     } else if(Object.keys(loadUsers()).length===0){
       showLoginForm();
     } else {
@@ -1161,10 +1167,17 @@ function openUserPanel(){
 function switchToUser(){
   var users=loadUsers(),names=Object.keys(users);
   var html='<div style="font-size:13px;color:var(--muted);margin-bottom:10px">已有用户，点击即可切换：</div>';
-  names.forEach(function(n){html+='<div class="user-switch-item" onclick="setActiveUser(\''+n.replace(/'/g,"\\'")+'\');loginQuick()">👤 '+H(n)+'</div>';});
-  html+='<div class="user-switch-item new" onclick="showLoginForm()">➕ 新建用户</div>';
+  for(var i=0;i<names.length;i++){
+    html+='<div class="user-switch-item" data-name="'+H(names[i])+'">👤 '+H(names[i])+'</div>';
+  }
+  html+='<div class="user-switch-item new" id="newUserBtn">➕ 新建用户</div>';
   var panel=document.getElementById('userPanel');
   panel.innerHTML=html;
+  var items=panel.querySelectorAll('.user-switch-item:not(.new)');
+  for(var j=0;j<items.length;j++){
+    items[j].onclick=(function(name){return function(){setActiveUser(name);loginQuick();};})(names[j]);
+  }
+  document.getElementById('newUserBtn').onclick=showLoginForm;
 }
 function loginQuick(){
   checkUserFlow();showToast('已切换');
@@ -1172,7 +1185,24 @@ function loginQuick(){
 }
 function showLoginForm(){
   var panel=document.getElementById('userPanel');
-  panel.innerHTML='<div class="login-form"><input class="login-input" id="loginName" placeholder="输入名字"><input class="login-input" id="loginPw" type="password" placeholder="输入密码"><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary" style="flex:1" onclick="var n=document.getElementById(\'loginName\').value.trim(),p=document.getElementById(\'loginPw\').value;if(!n)return showToast(\'请输入名字\');var users=loadUsers();if(users[n]){loginUser(n,p);document.getElementById(\'userOverlay\').classList.add(\'hidden\');}else{createUser(n,p);document.getElementById(\'userOverlay\').classList.add(\'hidden\');}">确认</button><button class="btn btn-secondary" style="flex:1" onclick="switchToUser()">返回</button></div></div>';
+  panel.innerHTML='<div class="login-form">'+
+    '<input class="login-input" id="loginName" placeholder="输入名字">'+
+    '<input class="login-input" id="loginPw" type="password" placeholder="输入密码">'+
+    '<div style="display:flex;gap:8px;margin-top:10px">'+
+    '<button class="btn btn-primary" style="flex:1" id="loginConfirmBtn">确认</button>'+
+    '<button class="btn btn-secondary" style="flex:1" id="loginBackBtn">返回</button>'+
+    '</div></div>';
+  document.getElementById('loginConfirmBtn').onclick=doLogin;
+  document.getElementById('loginBackBtn').onclick=switchToUser;
+}
+function doLogin(){
+  var n=document.getElementById('loginName').value.trim();
+  var p=document.getElementById('loginPw').value;
+  if(!n){showToast('请输入名字');return;}
+  var users=loadUsers();
+  if(users[n]){loginUser(n,p);}
+  else{createUser(n,p);}
+  document.getElementById('userOverlay').classList.add('hidden');
 }
 
 // ==================== 用户流程 ====================
@@ -1193,7 +1223,6 @@ function checkUserFlow(){
   words=[];document.getElementById('wordList').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">请先创建或选择用户</div>';
   document.getElementById('progText').textContent='0 / 0';
   document.getElementById('progBar').style.width='0%';
-  openUserPanel();
 }
 
 // ==================== 工具 ====================
