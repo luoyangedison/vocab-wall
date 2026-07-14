@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="每日单词图标">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="12" x2="164" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#263B8F"/>
+      <stop offset="1" stop-color="#6C4BC2"/>
+    </linearGradient>
+    <linearGradient id="page" x1="50" y1="76" x2="132" y2="137" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E8ECFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <path d="M35 70c18-10 35-8 55 4v68c-20-12-37-14-55-4V70Z" fill="url(#page)"/>
+  <path d="M145 70c-18-10-35-8-55 4v68c20-12 37-14 55-4V70Z" fill="url(#page)"/>
+  <path d="M90 74v67" stroke="#AAB7F0" stroke-width="4" stroke-linecap="round"/>
+  <path d="M49 91c11-4 22-3 33 2M49 106c11-4 22-3 33 2M131 91c-11-4-22-3-33 2M131 106c-11-4-22-3-33 2" fill="none" stroke="#7686D3" stroke-width="4" stroke-linecap="round"/>
+  <path d="m138 31 4 10 10 4-10 4-4 10-4-10-10-4 10-4 4-10Z" fill="#A9F0FF"/>
+</svg>
