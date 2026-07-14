@@ -183,6 +183,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="words_ai_extra.js"></script>
+<script src="words_grade8_term1.js"></script>
 <script>
 // === Word Database ===
 var W={};
@@ -935,10 +937,14 @@ W.daily=[
 ];
 
 // ==================== 分类结构 ====================
+W.ai=W.ai.concat(AI_EXTRA);
+W.grade8t1=GRADE8_TERM1_EXTRA.slice();
+
 var CAT_GROUPS=[
   {id:'g1',icon:'📚',name:'初中英语',open:true,sub:[
     {key:'grade7',name:'初一',desc:'课标基础词汇 ('+W.grade7.length+'词)'},
     {key:'grade8',name:'初二',desc:'课标进阶词汇 ('+W.grade8.length+'词)'},
+    {key:'grade8t1',name:'初二上册',desc:'人教版临时词库 ('+W.grade8t1.length+'词)'},
     {key:'grade9',name:'初三',desc:'课标核心词汇 ('+W.grade9.length+'词)'}
   ]},
   {id:'g2',icon:'📖',name:'高中英语',open:false,sub:[
